@@ -77,6 +77,9 @@ const Room = () => {
         /* handle the error */
         console.log("error", err);
       });
+
+    // resend HelloWorld message
+    helloWorld();
   };
 
   const handleRoomCreated = () => {
