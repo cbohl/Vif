@@ -1,9 +1,7 @@
-"use client";
-
 import Head from "next/head";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import styles from "./page.module.css";
+import styles from "./index.module.css";
 
 export default function Home() {
   const router = useRouter();
