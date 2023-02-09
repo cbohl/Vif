@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import styles from "./index.module.css";
+import styles from "../app/page.module.css";
 
 export default function Home() {
   const router = useRouter();
