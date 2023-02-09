@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
-import useSocket from "../../hooks/useSocket";
+import useSocket from "hooks/useSocket";
 
 const ICE_SERVERS = {
   iceServers: [
@@ -224,6 +224,10 @@ const Room = () => {
     setCameraActive((prev) => !prev);
   };
 
+  const helloWorld = () => {
+    socketRef.current.emit("hello", "world");
+  };
+
   const leaveRoom = () => {
     socketRef.current.emit("leave", roomName); // Let's the server know that user has left the room.
 
@@ -251,7 +255,25 @@ const Room = () => {
   return (
     <div>
       <video autoPlay ref={userVideoRef} />
+      <h1>Select GIF from here</h1>
       <video autoPlay ref={peerVideoRef} />
+      <h1>Dispay other users GIF here</h1>
+      <button onClick={helloWorld} type='button'>
+        Enter hello world here
+      </button>
+      <iframe
+        src='https://giphy.com/embed/YRVP7mapl24G6RNkwJ'
+        width='480'
+        height='480'
+        frameBorder='0'
+        className='giphy-embed'
+        allowFullScreen
+      ></iframe>
+      <p>
+        <a href='https://giphy.com/gifs/moodman-YRVP7mapl24G6RNkwJ'>
+          via GIPHY
+        </a>
+      </p>
       <button onClick={toggleMic} type='button'>
         {micActive ? "Mute Mic" : "UnMute Mic"}
       </button>

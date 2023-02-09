@@ -12,6 +12,9 @@ const SocketHandler = (req, res) => {
   io.on("connection", (socket) => {
     console.log(`User Connected :${socket.id}`);
 
+    socket.on("hello", (arg) => {
+      console.log(arg); // world
+    });
     // Triggered when a peer hits the join room button.
     socket.on("join", (roomName) => {
       const { rooms } = io.sockets.adapter;
