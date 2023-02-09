@@ -49,6 +49,11 @@ const Room = () => {
     socketRef.current.on("answer", handleAnswer);
     socketRef.current.on("ice-candidate", handlerNewIceCandidateMsg);
 
+    socketRef.current.on("chat-message", function (msg: any) {
+      alert(msg);
+      console.log(msg);
+    });
+
     // clear up after
     return () => socketRef.current.disconnect();
   }, [roomName]);

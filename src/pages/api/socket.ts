@@ -13,6 +13,7 @@ const SocketHandler = (req, res) => {
     console.log(`User Connected :${socket.id}`);
 
     socket.on("hello", (arg) => {
+      io.emit("chat-message", "it's on");
       console.log(arg); // world
     });
     // Triggered when a peer hits the join room button.
