@@ -15,6 +15,9 @@ const Room = () => {
   useSocket();
   const [micActive, setMicActive] = useState(true);
   const [cameraActive, setCameraActive] = useState(true);
+  const [otherUsersGifLink, setOtherUsersGifLink] = useState(
+    "https://giphy.com/embed/eTVG7eVNnud8Y"
+  );
 
   const router = useRouter();
   const userVideoRef = useRef();
@@ -49,9 +52,10 @@ const Room = () => {
     socketRef.current.on("answer", handleAnswer);
     socketRef.current.on("ice-candidate", handlerNewIceCandidateMsg);
 
-    socketRef.current.on("chat-message", function (msg: any) {
-      alert(msg);
-      console.log(msg);
+    // Update other users GIF if pinged by server called
+    socketRef.current.on("new-gif-from-server", function (msg: any) {
+      console.log(otherUsersGifLink);
+      setOtherUsersGifLink(msg);
     });
 
     // clear up after
@@ -78,8 +82,8 @@ const Room = () => {
         console.log("error", err);
       });
 
-    // resend HelloWorld message
-    helloWorld();
+    // resend GifLink so new user can receive it and not just use default GIF
+    gifLinkToServer();
   };
 
   const handleRoomCreated = () => {
@@ -232,8 +236,12 @@ const Room = () => {
     setCameraActive((prev) => !prev);
   };
 
-  const helloWorld = () => {
-    socketRef.current.emit("hello", "world");
+  const gifLinkToServer = () => {
+    // socketRef.current.emit("hello", "world");
+    socketRef.current.emit(
+      "set-gif-to-server",
+      "https://giphy.com/embed/4Zo41lhzKt6iZ8xff9"
+    );
   };
 
   const leaveRoom = () => {
@@ -266,11 +274,11 @@ const Room = () => {
       <h1>Select GIF from here</h1>
       <video autoPlay ref={peerVideoRef} />
       <h1>Dispay other users GIF here</h1>
-      <button onClick={helloWorld} type='button'>
-        Enter hello world here
+      <button onClick={gifLinkToServer} type='button'>
+        Set new gif link here
       </button>
       <iframe
-        src='https://giphy.com/embed/YRVP7mapl24G6RNkwJ'
+        src={otherUsersGifLink}
         width='480'
         height='480'
         frameBorder='0'
