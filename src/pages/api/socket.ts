@@ -12,9 +12,9 @@ const SocketHandler = (req, res) => {
   io.on("connection", (socket) => {
     console.log(`User Connected :${socket.id}`);
 
-    socket.on("set-gif-to-server", (arg) => {
-      socket.broadcast.emit("new-gif-from-server", arg);
-      console.log(arg); // world
+    socket.on("set-gif-to-server", (gifUrl, roomName) => {
+      socket.broadcast.to(roomName).emit("new-gif-from-server", gifUrl);
+      console.log(gifUrl); // world
     });
     // Triggered when a peer hits the join room button.
     socket.on("join", (roomName) => {

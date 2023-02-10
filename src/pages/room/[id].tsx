@@ -237,10 +237,10 @@ const Room = () => {
   };
 
   const gifLinkToServer = () => {
-    // socketRef.current.emit("hello", "world");
     socketRef.current.emit(
       "set-gif-to-server",
-      "https://giphy.com/embed/4Zo41lhzKt6iZ8xff9"
+      "https://giphy.com/embed/4Zo41lhzKt6iZ8xff9",
+      roomName
     );
   };
 
