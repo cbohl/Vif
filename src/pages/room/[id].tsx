@@ -2,6 +2,22 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import useSocket from "hooks/useSocket";
+// const giphy = require("giphy-api")(process.env.GIPHY_API_KEY);
+
+// debugger;
+
+// fetch("/api/users")
+//    .then(response => response())
+//    .then(response => console.log(response.data))
+//    .catch(err => console.log(err)
+
+// Search with a plain string using callback
+// giphy.search("pokemon", function (err, res) {
+//   console.log(err);
+//   console.log(res);
+//   debugger;
+//   // Res contains gif data!
+// });
 
 const ICE_SERVERS = {
   iceServers: [
@@ -28,7 +44,68 @@ const Room = () => {
   const hostRef = useRef(false);
 
   const { id: roomName } = router.query;
+
+  const getGiphyData = async () => {
+    // api call goes here
+    // fetch("/api/giphy")
+    //   // .then((response) => response())
+    //   .then((response) => {
+    //     console.log(response);
+    //     response.json();
+    //     // debugger;
+    //   })
+    //   .then((data) => {
+    //     console.log(data);
+    //     debugger;
+    //   })
+    //   .catch((err) => console.log(err));
+    // let requestString =
+    //   "/api/giphy" +
+    //   {
+    //     foo: "value",
+    //     bar: 2,
+    //   }.toString();
+
+    const myParams = { foo: "hi there", bar: "???" };
+
+    const u = new URLSearchParams(myParams).toString();
+
+    console.log("these are special", u);
+
+    let gifQuery = "pikachu";
+
+    let jsonQuery = { gifSearch: "pikachu" };
+
+    let stringQuery = new URLSearchParams(jsonQuery).toString();
+
+    let requestString = "/api/giphy?" + stringQuery;
+    // new URLSearchParams(
+    //   {
+    //     foo: "value",
+    //     bar: 2,
+    //   }.toString()
+    // );
+    console.log("this is the rquest string", requestString);
+    //   fetch(
+    //     "/api/giphy" +
+    //       {
+    //         foo: "value",
+    //         bar: 2,
+    //       }.toString()
+    //   )
+    //     .then((response) => response.json())
+    //     .then((data) => console.log(data));
+    // };
+
+    fetch(requestString)
+      .then((response) => response.json())
+      .then((data) => console.log(data));
+  };
+
   useEffect(() => {
+    getGiphyData();
+    // debugger;
+
     socketRef.current = io();
     // First we join a room
     socketRef.current.emit("join", roomName);
@@ -272,6 +349,10 @@ const Room = () => {
     <div>
       <video autoPlay ref={userVideoRef} />
       <h1>Select GIF from here</h1>
+      {/* <ReactGiphySearchbox
+        apiKey='YOUR_API_KEY' // Required: get your on https://developers.giphy.com
+        onSelect={(item) => console.log(item)}
+      /> */}
       <video autoPlay ref={peerVideoRef} />
       <h1>Dispay other users GIF here</h1>
       <button onClick={gifLinkToServer} type='button'>
