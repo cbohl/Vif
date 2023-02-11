@@ -29,10 +29,6 @@ const GiphySearch = () => {
 
   const initialRender = useRef(true);
 
-  const apiUrl = "https://api.giphy.com/v1/gifs/search";
-  const apiKey = "";
-  const gifLimit = 50;
-
   const handleSearchTermInput = useMemo(() =>
     debounce((inputValue) => {
       setSearching(true);
@@ -52,6 +48,44 @@ const GiphySearch = () => {
     })
   );
 
+  const getGiphyData = async (searchTerm) => {
+    // const u = new URLSearchParams(myParams).toString();
+    // console.log("these are special", u);
+
+    let gifQuery = searchTerm;
+    let jsonQuery = { gifSearch: `${searchTerm}` };
+
+    let stringQuery = new URLSearchParams(jsonQuery).toString();
+
+    let requestString = "/api/giphy?" + stringQuery;
+    // console.log("this is the rquest string", requestString);
+
+    let y = await fetch(requestString);
+
+    let x = await y.json();
+    // .json()
+    // .then((response) => response.json())
+    // .then((data) => console.log("here is the data the first time", data));
+
+    console.log("trying data the first time again", x);
+
+    return x;
+  };
+
+  // .then((data) => {
+  //   if (data.meta.status === 200) {
+  //     setGifs([...data.data]);
+  //     setError(false);
+  //   } else {
+  //     setError(true);
+  //   }
+  // })
+  // .catch(() => setError(true))
+  // .finally(() => {
+  //   setSearching(false);
+  //   setSearched(true);
+  // });
+
   useEffect(() => {
     if (initialRender.current) {
       initialRender.current = false;
@@ -60,21 +94,21 @@ const GiphySearch = () => {
 
     const fetchController = new AbortController();
 
-    fetch(`${apiUrl}?api_key=${apiKey}&q=${searchTerm}&limit=${searchLimit}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.meta.status === 200) {
-          setGifs([...data.data]);
-          setError(false);
-        } else {
-          setError(true);
-        }
-      })
-      .catch(() => setError(true))
-      .finally(() => {
-        setSearching(false);
-        setSearched(true);
-      });
+    let data = getGiphyData(searchTerm);
+    console.log("HERE IS THE DATA", data);
+
+    //   if (data.meta.status === 200) {
+    //     setGifs([...data.data]);
+    //     setError(false);
+    //   } else {
+    //     setError(true);
+    //   }
+    // })
+    // .catch(() => setError(true))
+    // .finally(() => {
+    //   setSearching(false);
+    //   setSearched(true);
+    // });
 
     return () => fetchController.abort();
   }, [searchTerm, searchLimit]);
@@ -85,7 +119,7 @@ const GiphySearch = () => {
       <main>
         <div className='container'>
           <Search
-            gifLimit={gifLimit}
+            gifLimit={5}
             handleSearchTermInput={(e) => handleSearchTermInput(e.target.value)}
             handleSearchLimitInput={(e) =>
               handleSearchLimitInput(e.target.value)
