@@ -45,65 +45,8 @@ const Room = () => {
 
   const { id: roomName } = router.query;
 
-  const getGiphyData = async () => {
-    // api call goes here
-    // fetch("/api/giphy")
-    //   // .then((response) => response())
-    //   .then((response) => {
-    //     console.log(response);
-    //     response.json();
-    //     // debugger;
-    //   })
-    //   .then((data) => {
-    //     console.log(data);
-    //     debugger;
-    //   })
-    //   .catch((err) => console.log(err));
-    // let requestString =
-    //   "/api/giphy" +
-    //   {
-    //     foo: "value",
-    //     bar: 2,
-    //   }.toString();
-
-    const myParams = { foo: "hi there", bar: "???" };
-
-    const u = new URLSearchParams(myParams).toString();
-
-    console.log("these are special", u);
-
-    let gifQuery = "pikachu";
-
-    let jsonQuery = { gifSearch: "pikachu" };
-
-    let stringQuery = new URLSearchParams(jsonQuery).toString();
-
-    let requestString = "/api/giphy?" + stringQuery;
-    // new URLSearchParams(
-    //   {
-    //     foo: "value",
-    //     bar: 2,
-    //   }.toString()
-    // );
-    console.log("this is the rquest string", requestString);
-    //   fetch(
-    //     "/api/giphy" +
-    //       {
-    //         foo: "value",
-    //         bar: 2,
-    //       }.toString()
-    //   )
-    //     .then((response) => response.json())
-    //     .then((data) => console.log(data));
-    // };
-
-    fetch(requestString)
-      .then((response) => response.json())
-      .then((data) => console.log(data));
-  };
-
   useEffect(() => {
-    getGiphyData();
+    // getGiphyData();
     // debugger;
 
     socketRef.current = io();

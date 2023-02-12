@@ -48,7 +48,7 @@ const GiphySearch = () => {
     })
   );
 
-  const getGiphyData = async (searchTerm) => {
+  async function getGiphyData(searchTerm) {
     // const u = new URLSearchParams(myParams).toString();
     // console.log("these are special", u);
 
@@ -62,15 +62,29 @@ const GiphySearch = () => {
 
     let y = await fetch(requestString);
 
-    let x = await y.json();
+    let data = await y.json();
     // .json()
     // .then((response) => response.json())
     // .then((data) => console.log("here is the data the first time", data));
 
-    console.log("trying data the first time again", x);
+    console.log("trying data the first time again", data);
 
-    return x;
-  };
+    // if (data.meta.status === 200) {
+    //   console.log("setting gifs as these", [...data.data]);
+    //   setGifs([...data.data]);
+    //   setError(false);
+    // } else {
+    //   setError(true);
+    // }
+    // })
+    // .catch(() => setError(true))
+    // .finally(() => {
+    //   setSearching(false);
+    //   setSearched(true);
+    // });
+
+    return data;
+  }
 
   // .then((data) => {
   //   if (data.meta.status === 200) {
@@ -94,8 +108,25 @@ const GiphySearch = () => {
 
     const fetchController = new AbortController();
 
-    let data = getGiphyData(searchTerm);
-    console.log("HERE IS THE DATA", data);
+    // let data = getGiphyData(searchTerm);
+    // console.log("HERE IS THE DATA", data);
+
+    getGiphyData(searchTerm)
+      // .then((res) => res.json())
+      .then((data) => {
+        if (data.meta.status === 200) {
+          console.log("in here");
+          setGifs([...data.data]);
+          setError(false);
+        } else {
+          setError(true);
+        }
+      })
+      .catch(() => setError(true))
+      .finally(() => {
+        setSearching(false);
+        setSearched(true);
+      });
 
     //   if (data.meta.status === 200) {
     //     setGifs([...data.data]);
