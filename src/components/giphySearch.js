@@ -86,6 +86,10 @@ const GiphySearch = () => {
     return data;
   }
 
+  const changeGif = (url) => {
+    console.log("this is the url", url);
+  };
+
   // .then((data) => {
   //   if (data.meta.status === 200) {
   //     setGifs([...data.data]);
@@ -157,7 +161,9 @@ const GiphySearch = () => {
             }
           />
           {searching && <Loader />}
-          {!searching && searched && <Results gifs={gifs} error={error} />}
+          {!searching && searched && (
+            <Results gifs={gifs} error={error} changeGif={changeGif} />
+          )}
         </div>
       </main>
       {/* <Footer /> */}
