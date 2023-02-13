@@ -2,6 +2,8 @@ import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import useSocket from "hooks/useSocket";
+import GiphySearch from "@/components/giphySearch";
+import Image from "next/image";
 // const giphy = require("giphy-api")(process.env.GIPHY_API_KEY);
 
 // debugger;
@@ -32,7 +34,10 @@ const Room = () => {
   const [micActive, setMicActive] = useState(true);
   const [cameraActive, setCameraActive] = useState(true);
   const [otherUsersGifLink, setOtherUsersGifLink] = useState(
-    "https://giphy.com/embed/eTVG7eVNnud8Y"
+    "https://media1.giphy.com/media/xTiN0IuPQxRqzxodZm/200w_d.gif?cid=f862e515s4k9l5sctolvc5s6ddygrlm8q4lasl14udviceh4&rid=200w_d.gif&ct=g"
+  );
+  const [selectedGifUrl, setSelectedGifUrl] = useState(
+    "https://media1.giphy.com/media/xTiN0IuPQxRqzxodZm/200w_d.gif?cid=f862e515s4k9l5sctolvc5s6ddygrlm8q4lasl14udviceh4&rid=200w_d.gif&ct=g"
   );
 
   const router = useRouter();
@@ -103,7 +108,8 @@ const Room = () => {
       });
 
     // resend GifLink so new user can receive it and not just use default GIF
-    gifLinkToServer();
+    alert("room joined!");
+    gifLinkToServer(selectedGifUrl);
   };
 
   const handleRoomCreated = () => {
@@ -216,12 +222,14 @@ const Room = () => {
     rtcConnectionRef.current
       .setRemoteDescription(answer)
       .catch((err) => console.log(err));
+    // alert("answer!");
   };
 
   const handleICECandidateEvent = (event) => {
     if (event.candidate) {
       socketRef.current.emit("ice-candidate", event.candidate, roomName);
     }
+    // alert("ice candidate!");
   };
 
   const handlerNewIceCandidateMsg = (incoming) => {
@@ -230,6 +238,7 @@ const Room = () => {
     rtcConnectionRef.current
       .addIceCandidate(candidate)
       .catch((e) => console.log(e));
+    // alert("new mesg");
   };
 
   const handleTrackEvent = (event) => {
@@ -256,12 +265,8 @@ const Room = () => {
     setCameraActive((prev) => !prev);
   };
 
-  const gifLinkToServer = () => {
-    socketRef.current.emit(
-      "set-gif-to-server",
-      "https://giphy.com/embed/4Zo41lhzKt6iZ8xff9",
-      roomName
-    );
+  const gifLinkToServer = (url) => {
+    socketRef.current.emit("set-gif-to-server", url, roomName);
   };
 
   const leaveRoom = () => {
@@ -288,10 +293,28 @@ const Room = () => {
     router.push("/");
   };
 
+  const changeGif2 = (url) => {
+    // alert(url);
+    setSelectedGifUrl(url);
+    gifLinkToServer(url);
+  };
+
   return (
     <div>
       <video autoPlay ref={userVideoRef} />
+      <h1>Display select GIF here</h1>
+      <div className='gif'>
+        {/* <Image
+          src={selectedGifUrl}
+          className='gif__image'
+          alt='test'
+          width='500'
+          height='500'
+        /> */}
+        <img src={selectedGifUrl} className='gif__image' alt='test'></img>
+      </div>
       <h1>Select GIF from here</h1>
+      <GiphySearch changeGif2={changeGif2}> </GiphySearch>
       {/* <ReactGiphySearchbox
         apiKey='YOUR_API_KEY' // Required: get your on https://developers.giphy.com
         onSelect={(item) => console.log(item)}
@@ -301,7 +324,9 @@ const Room = () => {
       <button onClick={gifLinkToServer} type='button'>
         Set new gif link here
       </button>
-      <iframe
+      <img src={otherUsersGifLink} className='gif__image' alt='test'></img>
+
+      {/* <iframe
         src={otherUsersGifLink}
         width='480'
         height='480'
@@ -313,7 +338,7 @@ const Room = () => {
         <a href='https://giphy.com/gifs/moodman-YRVP7mapl24G6RNkwJ'>
           via GIPHY
         </a>
-      </p>
+      </p> */}
       <button onClick={toggleMic} type='button'>
         {micActive ? "Mute Mic" : "UnMute Mic"}
       </button>

@@ -19,7 +19,8 @@ const debounce = (func, wait = 800) => {
   };
 };
 
-const GiphySearch = () => {
+const GiphySearch = (changeGif2) => {
+  // debugger;
   const [searchTerm, setSearchTerm] = useState("");
   const [searchLimit, setSearchLimit] = useState(30);
   const [searching, setSearching] = useState(false);
@@ -162,7 +163,12 @@ const GiphySearch = () => {
           />
           {searching && <Loader />}
           {!searching && searched && (
-            <Results gifs={gifs} error={error} changeGif={changeGif} />
+            <Results
+              gifs={gifs}
+              error={error}
+              changeGif={changeGif}
+              changeGif2={changeGif2}
+            />
           )}
         </div>
       </main>
