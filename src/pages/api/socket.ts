@@ -13,9 +13,15 @@ const SocketHandler = (req, res) => {
     console.log(`User Connected :${socket.id}`);
 
     socket.on("set-gif-to-server", (gifUrl, roomName) => {
+      console.log("sending gif", gifUrl); // world
       socket.broadcast.to(roomName).emit("new-gif-from-server", gifUrl);
-      console.log(gifUrl); // world
     });
+
+    socket.on("new-peer-to-server", (roomName) => {
+      console.log("new peer to server!");
+      socket.broadcast.to(roomName).emit("new-peer-from-server");
+    });
+
     // Triggered when a peer hits the join room button.
     socket.on("join", (roomName) => {
       const { rooms } = io.sockets.adapter;

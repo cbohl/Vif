@@ -39,6 +39,9 @@ const Room = () => {
   const [selectedGifUrl, setSelectedGifUrl] = useState(
     "https://media1.giphy.com/media/xTiN0IuPQxRqzxodZm/200w_d.gif?cid=f862e515s4k9l5sctolvc5s6ddygrlm8q4lasl14udviceh4&rid=200w_d.gif&ct=g"
   );
+  const selectedGifUrlRef = useRef(
+    "https://media1.giphy.com/media/xTiN0IuPQxRqzxodZm/200w_d.gif?cid=f862e515s4k9l5sctolvc5s6ddygrlm8q4lasl14udviceh4&rid=200w_d.gif&ct=g"
+  );
 
   const router = useRouter();
   const userVideoRef = useRef();
@@ -79,8 +82,14 @@ const Room = () => {
 
     // Update other users GIF if pinged by server called
     socketRef.current.on("new-gif-from-server", function (msg: any) {
-      console.log(otherUsersGifLink);
+      console.log("here is the new gif form server", msg);
       setOtherUsersGifLink(msg);
+    });
+
+    socketRef.current.on("new-peer-from-server", function () {
+      console.log("new peer, sending gif link!", selectedGifUrl);
+      console.log("sending link, here is ref", selectedGifUrlRef.current);
+      gifLinkToServer(selectedGifUrlRef.current);
     });
 
     // clear up after
@@ -108,7 +117,9 @@ const Room = () => {
       });
 
     // resend GifLink so new user can receive it and not just use default GIF
-    alert("room joined!");
+    // alert("room joined!!!");
+    // debugger;
+    socketRef.current.emit("new-peer-to-server", roomName);
     gifLinkToServer(selectedGifUrl);
   };
 
@@ -222,7 +233,6 @@ const Room = () => {
     rtcConnectionRef.current
       .setRemoteDescription(answer)
       .catch((err) => console.log(err));
-    // alert("answer!");
   };
 
   const handleICECandidateEvent = (event) => {
@@ -295,7 +305,9 @@ const Room = () => {
 
   const changeGif2 = (url) => {
     // alert(url);
+    selectedGifUrlRef.current = url;
     setSelectedGifUrl(url);
+    // console.log("this is hte selectedgifurlref", selectedGifUrlRef);
     gifLinkToServer(url);
   };
 
