@@ -45,13 +45,13 @@ const Room = () => {
     "https://media1.giphy.com/media/xTiN0IuPQxRqzxodZm/200w_d.gif?cid=f862e515s4k9l5sctolvc5s6ddygrlm8q4lasl14udviceh4&rid=200w_d.gif&ct=g"
   );
 
-  const router = useRouter();
-  const userVideoRef = useRef();
-  const peerVideoRef = useRef();
-  const rtcConnectionRef = useRef(null);
-  const socketRef = useRef();
-  const userStreamRef = useRef();
-  const hostRef = useRef(false);
+  const router: any = useRouter();
+  const userVideoRef: any = useRef();
+  const peerVideoRef: any = useRef();
+  const rtcConnectionRef: any = useRef(null);
+  const socketRef: any = useRef();
+  const userStreamRef: any = useRef();
+  const hostRef: any = useRef(false);
 
   const { id: roomName } = router.query;
 
@@ -113,7 +113,7 @@ const Room = () => {
         };
         socketRef.current.emit("ready", roomName);
       })
-      .catch((err) => {
+      .catch((err: any) => {
         /* handle the error */
         console.log("error", err);
       });
@@ -140,7 +140,7 @@ const Room = () => {
           userVideoRef.current.play();
         };
       })
-      .catch((err) => {
+      .catch((err: any) => {
         /* handle the error */
         console.log(err);
       });
@@ -159,11 +159,11 @@ const Room = () => {
       );
       rtcConnectionRef.current
         .createOffer()
-        .then((offer) => {
+        .then((offer: any) => {
           rtcConnectionRef.current.setLocalDescription(offer);
           socketRef.current.emit("offer", offer, roomName);
         })
-        .catch((error) => {
+        .catch((error: any) => {
           console.log(error);
         });
     }
@@ -175,7 +175,7 @@ const Room = () => {
     if (peerVideoRef.current.srcObject) {
       peerVideoRef.current.srcObject
         .getTracks()
-        .forEach((track) => track.stop()); // Stops receiving all track of Peer.
+        .forEach((track: any) => track.stop()); // Stops receiving all track of Peer.
     }
 
     // Safely closes the existing connection established with the peer who left.
@@ -206,7 +206,7 @@ const Room = () => {
     return connection;
   };
 
-  const handleReceivedOffer = (offer) => {
+  const handleReceivedOffer = (offer: any) => {
     if (!hostRef.current) {
       rtcConnectionRef.current = createPeerConnection();
       rtcConnectionRef.current.addTrack(
@@ -221,45 +221,45 @@ const Room = () => {
 
       rtcConnectionRef.current
         .createAnswer()
-        .then((answer) => {
+        .then((answer: any) => {
           rtcConnectionRef.current.setLocalDescription(answer);
           socketRef.current.emit("answer", answer, roomName);
         })
-        .catch((error) => {
+        .catch((error: any) => {
           console.log(error);
         });
     }
   };
 
-  const handleAnswer = (answer) => {
+  const handleAnswer = (answer: any) => {
     rtcConnectionRef.current
       .setRemoteDescription(answer)
-      .catch((err) => console.log(err));
+      .catch((err: any) => console.log(err));
   };
 
-  const handleICECandidateEvent = (event) => {
+  const handleICECandidateEvent = (event: any) => {
     if (event.candidate) {
       socketRef.current.emit("ice-candidate", event.candidate, roomName);
     }
     // alert("ice candidate!");
   };
 
-  const handlerNewIceCandidateMsg = (incoming) => {
+  const handlerNewIceCandidateMsg = (incoming: any) => {
     // We cast the incoming candidate to RTCIceCandidate
     const candidate = new RTCIceCandidate(incoming);
     rtcConnectionRef.current
       .addIceCandidate(candidate)
-      .catch((e) => console.log(e));
+      .catch((e: any) => console.log(e));
     // alert("new mesg");
   };
 
-  const handleTrackEvent = (event) => {
+  const handleTrackEvent = (event: any) => {
     // eslint-disable-next-line prefer-destructuring
     peerVideoRef.current.srcObject = event.streams[0];
   };
 
-  const toggleMediaStream = (type, state) => {
-    userStreamRef.current.getTracks().forEach((track) => {
+  const toggleMediaStream = (type: any, state: any) => {
+    userStreamRef.current.getTracks().forEach((track: any) => {
       if (track.kind === type) {
         // eslint-disable-next-line no-param-reassign
         track.enabled = !state;
@@ -277,7 +277,7 @@ const Room = () => {
     setCameraActive((prev) => !prev);
   };
 
-  const gifLinkToServer = (url) => {
+  const gifLinkToServer = (url: any) => {
     socketRef.current.emit("set-gif-to-server", url, roomName);
   };
 
@@ -287,12 +287,12 @@ const Room = () => {
     if (userVideoRef.current.srcObject) {
       userVideoRef.current.srcObject
         .getTracks()
-        .forEach((track) => track.stop()); // Stops receiving all track of User.
+        .forEach((track: any) => track.stop()); // Stops receiving all track of User.
     }
     if (peerVideoRef.current.srcObject) {
       peerVideoRef.current.srcObject
         .getTracks()
-        .forEach((track) => track.stop()); // Stops receiving audio track of Peer.
+        .forEach((track: any) => track.stop()); // Stops receiving audio track of Peer.
     }
 
     // Checks if there is peer on the other side and safely closes the existing connection established with the peer.
@@ -305,7 +305,7 @@ const Room = () => {
     router.push("/");
   };
 
-  const changeGif2 = (url) => {
+  const changeGif2 = (url: any) => {
     // alert(url);
     selectedGifUrlRef.current = url;
     setSelectedGifUrl(url);
