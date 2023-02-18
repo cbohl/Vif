@@ -1,38 +1,32 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Chif
 
-## Getting Started
+## Summary
 
-First, run the development server:
+Zoof is a web app for video chat with GIFs. Users can select a room number on the index page and invite their friend to join. Then, they will have a video chat with access to GIFs through the Giphy API.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+## Technologies Used
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+-Next.js
+-WebRTC
+-WebSockets (uses the Socket.io library)
+-Giphy API
+-Hosted via Vercel
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Challenges and Techniques
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+-In order to keep the Giphy API key a secret, this app routes API requests to Giphy through the app's own server, rather than directly from the client.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+- When a user clicks on a GIF, both the user's page and the peer's page must update. The useState React hook updates the user's DOM and the useRef React hook retains the URL of the GIF. Then, WebSocket allows event-driven events, so the URL can be to the server and then to the peer immediately.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Acknowledgements
 
-## Learn More
+There were two sources that were instrumental in creating this app. Both were heavily modified and customized in order to fit with this project.
 
-To learn more about Next.js, take a look at the following resources:
+First, the article ["Peer-to-peer video call with Next.js, Socket.io and Native WebRTC APIs"](https://www.stackfive.io/work/webrtc/peer-to-peer-video-call-with-next-js-socket-io-and-native-webrtc-apis) by Tauqueer Khan. Working through this tutorial provided a skeleton of a video chat app in Next.js.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Second, the project ["GIPHY Search API with CSS Grid & Flexbox"](https://gist.github.com/Quincy2002/44a564a0da1672570205dea3cb71379d) by Quincy2002. This provided a basis for the Giphy search.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+## Feature Wishlist
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+-Privacy via user accounts or room specific passwords.
+-Code type checking by converting JavaScript files to TypeScript.
