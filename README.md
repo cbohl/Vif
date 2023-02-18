@@ -1,4 +1,4 @@
-# Chif
+# Zoof
 
 ## Summary
 
@@ -6,15 +6,15 @@ Zoof is a web app for video chat with GIFs. Users can select a room number on th
 
 ## Technologies Used
 
--Next.js
--WebRTC
--WebSockets (uses the Socket.io library)
--Giphy API
--Hosted via Vercel
+- Next.js
+- WebRTC
+- WebSockets (through the Socket.io library)
+- Giphy API
+- Hosted via Vercel
 
 ## Challenges and Techniques
 
--In order to keep the Giphy API key a secret, this app routes API requests to Giphy through the app's own server, rather than directly from the client.
+- In order to keep the Giphy API key a secret, this app routes API requests to Giphy through the app's own server, rather than directly from the client.
 
 - When a user clicks on a GIF, both the user's page and the peer's page must update. The useState React hook updates the user's DOM and the useRef React hook retains the URL of the GIF. Then, WebSocket allows event-driven events, so the URL can be to the server and then to the peer immediately.
 
@@ -28,5 +28,5 @@ Second, the project ["GIPHY Search API with CSS Grid & Flexbox"](https://gist.gi
 
 ## Feature Wishlist
 
--Privacy via user accounts or room specific passwords.
--Code type checking by converting JavaScript files to TypeScript.
+- Privacy via user accounts or room specific passwords.
+- Code type checking by converting JavaScript files to TypeScript.
