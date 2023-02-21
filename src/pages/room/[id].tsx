@@ -6,22 +6,6 @@ import { io } from "socket.io-client";
 import useSocket from "hooks/useSocket";
 import GiphySearch from "@/components/giphySearch";
 import Image from "next/image";
-// const giphy = require("giphy-api")(process.env.GIPHY_API_KEY);
-
-// debugger;
-
-// fetch("/api/users")
-//    .then(response => response())
-//    .then(response => console.log(response.data))
-//    .catch(err => console.log(err)
-
-// Search with a plain string using callback
-// giphy.search("pokemon", function (err, res) {
-//   console.log(err);
-//   console.log(res);
-//   debugger;
-//   // Res contains gif data!
-// });
 
 const ICE_SERVERS = {
   iceServers: [
@@ -56,9 +40,6 @@ const Room = () => {
   const { id: roomName } = router.query;
 
   useEffect(() => {
-    // getGiphyData();
-    // debugger;
-
     socketRef.current = io();
     // First we join a room
     socketRef.current.emit("join", roomName);
@@ -118,9 +99,6 @@ const Room = () => {
         console.log("error", err);
       });
 
-    // resend GifLink so new user can receive it and not just use default GIF
-    // alert("room joined!!!");
-    // debugger;
     socketRef.current.emit("new-peer-to-server", roomName);
     gifLinkToServer(selectedGifUrl);
   };
@@ -241,7 +219,6 @@ const Room = () => {
     if (event.candidate) {
       socketRef.current.emit("ice-candidate", event.candidate, roomName);
     }
-    // alert("ice candidate!");
   };
 
   const handlerNewIceCandidateMsg = (incoming: any) => {
@@ -250,7 +227,6 @@ const Room = () => {
     rtcConnectionRef.current
       .addIceCandidate(candidate)
       .catch((e: any) => console.log(e));
-    // alert("new mesg");
   };
 
   const handleTrackEvent = (event: any) => {
@@ -306,10 +282,8 @@ const Room = () => {
   };
 
   const changeGif2 = (url: any) => {
-    // alert(url);
     selectedGifUrlRef.current = url;
     setSelectedGifUrl(url);
-    // console.log("this is hte selectedgifurlref", selectedGifUrlRef);
     gifLinkToServer(url);
   };
 
@@ -318,21 +292,10 @@ const Room = () => {
       <video autoPlay ref={userVideoRef} />
       <h1>Display select GIF here</h1>
       <div className='gif'>
-        {/* <Image
-          src={selectedGifUrl}
-          className='gif__image'
-          alt='test'
-          width='500'
-          height='500'
-        /> */}
         <img src={selectedGifUrl} className='gif__image' alt='test'></img>
       </div>
       <h1>Select GIF from here</h1>
       <GiphySearch changeGif2={changeGif2}> </GiphySearch>
-      {/* <ReactGiphySearchbox
-        apiKey='YOUR_API_KEY' // Required: get your on https://developers.giphy.com
-        onSelect={(item) => console.log(item)}
-      /> */}
       <video autoPlay ref={peerVideoRef} />
       <h1>Dispay other users GIF here</h1>
       <button onClick={gifLinkToServer} type='button'>
@@ -340,19 +303,6 @@ const Room = () => {
       </button>
       <img src={otherUsersGifLink} className='gif__image' alt='test'></img>
 
-      {/* <iframe
-        src={otherUsersGifLink}
-        width='480'
-        height='480'
-        frameBorder='0'
-        className='giphy-embed'
-        allowFullScreen
-      ></iframe>
-      <p>
-        <a href='https://giphy.com/gifs/moodman-YRVP7mapl24G6RNkwJ'>
-          via GIPHY
-        </a>
-      </p> */}
       <button onClick={toggleMic} type='button'>
         {micActive ? "Mute Mic" : "UnMute Mic"}
       </button>
