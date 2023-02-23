@@ -1,3 +1,6 @@
+// This page, a copy of the room page, is currently necessary due to CSS rendering issues.
+// The CSS from Tailwind is not applying to the room folder. This problem needs fixing.
+
 /* eslint-disable */
 
 import { useRouter } from "next/router";

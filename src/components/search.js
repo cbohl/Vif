@@ -12,12 +12,13 @@ const Search = ({
         <input
           type='text'
           id='search'
-          className='gif-search__input gif-search__input--term'
+          className='bg-green-50 border border-green-500 text-green-900 dark:text-green-400 placeholder-green-700 dark:placeholder-green-500 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 dark:bg-gray-700 dark:border-green-500'
           placeholder='e.g. funny cats'
           onChange={handleSearchTermInput}
         />
       </div>
-      <div className='gif-search__field'>
+
+      {/* <div className='gif-search__field'>
         <label htmlFor='limit' className='gif-search__label'>
           No. of GIFs:
         </label>
@@ -31,7 +32,7 @@ const Search = ({
           max={gifLimit}
           onChange={handleSearchLimitInput}
         />
-      </div>
+      </div> */}
     </div>
   );
 };
