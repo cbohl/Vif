@@ -1,6 +1,6 @@
 # fly.toml file generated for vif2 on 2023-02-24T12:40:00-06:00
 
-app = "vif2"
+app = "vif"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = []
