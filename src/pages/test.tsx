@@ -286,7 +286,7 @@ const Room = () => {
     router.push("/");
   };
 
-  const changeGif2 = (url: any) => {
+  const changeGif = (url: any) => {
     selectedGifUrlRef.current = url;
     setSelectedGifUrl(url);
     gifLinkToServer(url);
@@ -418,7 +418,7 @@ const Room = () => {
 
           <div>
             {/* <h1>Select GIF from here</h1> */}
-            <GiphySearch changeGif2={changeGif2}> </GiphySearch>
+            <GiphySearch changeGif={changeGif}> </GiphySearch>
           </div>
         </div>
       </div>

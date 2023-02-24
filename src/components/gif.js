@@ -1,11 +1,9 @@
-const Gif = ({ gif, changeGif, changeGif2 }) => {
+const Gif = ({ gif, changeGif }) => {
   // debugger;
   return (
     // <div className='gif' onClick={changeGif(gif.id)}>
     <div className='gif'>
-      <div
-        onClick={() => changeGif2.changeGif2(gif.images.downsized_large.url)}
-      >
+      <div onClick={() => changeGif.changeGif(gif.images.downsized_large.url)}>
         {/* <a
           className='gif__link'
           href={gif.images.original.url}

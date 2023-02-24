@@ -19,7 +19,7 @@ const debounce = (func, wait = 800) => {
   };
 };
 
-const GiphySearch = (changeGif2) => {
+const GiphySearch = (changeGif) => {
   // debugger;
   const [searchTerm, setSearchTerm] = useState("");
   const [searchLimit, setSearchLimit] = useState(30);
@@ -87,9 +87,9 @@ const GiphySearch = (changeGif2) => {
     return data;
   }
 
-  const changeGif = (url) => {
-    console.log("this is the url", url);
-  };
+  // const changeGif = (url) => {
+  //   console.log("this is the url", url);
+  // };
 
   // .then((data) => {
   //   if (data.meta.status === 200) {
@@ -163,12 +163,7 @@ const GiphySearch = (changeGif2) => {
           />
           {searching && <Loader />}
           {!searching && searched && (
-            <Results
-              gifs={gifs}
-              error={error}
-              changeGif={changeGif}
-              changeGif2={changeGif2}
-            />
+            <Results gifs={gifs} error={error} changeGif={changeGif} />
           )}
         </div>
       </main>
