@@ -10,6 +10,7 @@ import useSocket from "hooks/useSocket";
 import GiphySearch from "@/components/giphySearch";
 // import Image from "next/image";
 import styles from ".../app/page.module.css";
+import NavBar from "@/components/NavBar";
 
 const ICE_SERVERS = {
   iceServers: [
@@ -293,6 +294,7 @@ const Room = () => {
 
   return (
     <div>
+      <NavBar></NavBar>
       {/* <div className='w-12 h-12 bg-black'></div> */}
 
       {/* <div className='space-y-4 font-mono font-bold text-xs text-center text-white'> */}
@@ -351,7 +353,7 @@ const Room = () => {
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8'>
         <div className=''>
           <div>
-            <h2 className='text-lime-500 bold'>Other user</h2>
+            {/* <h2 className='text-lime-500 bold'>Other user</h2> */}
             <div className='w-96 inline-block'>
               <video
                 autoPlay
@@ -362,7 +364,7 @@ const Room = () => {
           </div>
 
           <div>
-            <h1>Dispay other users GIF here</h1>
+            {/* <h1>Dispay other users GIF here</h1> */}
             {/* <button onClick={gifLinkToServer} type='button'>
               Set new gif link here
             </button> */}
@@ -376,13 +378,17 @@ const Room = () => {
 
         <div>
           <div>
-            <h1>You </h1>
-            <div className='w-96 inline-block'>
+            {/* <h1>You </h1> */}
+            <div className='w-44 inline-block'>
               <video
                 autoPlay
                 ref={userVideoRef}
                 poster='/anonymousperson.png'
               />
+            </div>
+            {/* <h1>Display select GIF here</h1> */}
+            <div className='w-44 inline-block'>
+              <img src={selectedGifUrl} className='w-full'></img>
             </div>
           </div>
 
@@ -411,10 +417,6 @@ const Room = () => {
           </div>
 
           <div>
-            {/* <h1>Display select GIF here</h1> */}
-            <div className='w-96 inline-block'>
-              <img src={selectedGifUrl} className='w-full'></img>
-            </div>
             {/* <h1>Select GIF from here</h1> */}
             <GiphySearch changeGif2={changeGif2}> </GiphySearch>
           </div>

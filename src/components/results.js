@@ -11,7 +11,7 @@ const Results = ({ gifs, error, changeGif, changeGif2 }) => {
   // debugger;
 
   return (
-    <div className='gif-results' aria-live='polite'>
+    <div className='gif-results grid grid-cols-3 gap-4 w-96' aria-live='polite'>
       {gifs.length > 0 && !error ? (
         gifs.map((gif) => (
           <Gif

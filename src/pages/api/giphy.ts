@@ -24,7 +24,7 @@ export default async function serverSideCall(req: any, res: any) {
   // const gifLimit = 50;
 
   const searchTerm = req.query["gifSearch"];
-  const searchLimit = 5;
+  const searchLimit = 9;
 
   console.log("this is the real search term", searchTerm);
 
