@@ -10,6 +10,7 @@ import useSocket from "hooks/useSocket";
 import GiphySearch from "@/components/giphySearch";
 // import Image from "next/image";
 import styles from ".../app/page.module.css";
+import NavBar from "@/components/NavBar";
 
 const ICE_SERVERS = {
   iceServers: [
@@ -293,6 +294,7 @@ const Room = () => {
 
   return (
     <div>
+      <NavBar></NavBar>
       {/* <div className='w-12 h-12 bg-black'></div> */}
 
       {/* <div className='space-y-4 font-mono font-bold text-xs text-center text-white'> */}

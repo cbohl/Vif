@@ -2,6 +2,7 @@ import Head from "next/head";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import styles from "../app/page.module.css";
+import NavBar from "@/components/NavBar";
 
 export default function Home() {
   const router = useRouter();
@@ -22,15 +23,21 @@ export default function Home() {
         <link rel='icon' href='/favicon.ico' />
       </Head>
 
+      <NavBar></NavBar>
+
       <main className={styles.main}>
         <h1 className='text-lime-500 bold'>
           Welcome to Vif: Video Hangout and GIFs!
         </h1>
-        <h2>Select a room now!</h2>
+        <h2>
+          Create a room with the name of your choice! (Or join one made by a
+          friend)
+        </h2>
         <input
           onChange={(e) => setRoomName(e.target.value)}
           value={roomName}
-          className='bg-green-50 border border-green-500 text-green-900 dark:text-green-400 placeholder-green-700 dark:placeholder-green-500 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5 dark:bg-gray-700 dark:border-green-500'
+          className='bg-green-50 border border-green-500 text-green-900 dark:text-green-400 placeholder-green-700 dark:placeholder-green-500 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-96 p-2.5 dark:bg-gray-700 dark:border-green-500'
+          placeholder='e.g. PartyPlace'
         />
         <button
           onClick={joinRoom}
