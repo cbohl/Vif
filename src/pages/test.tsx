@@ -24,13 +24,13 @@ const Room = () => {
   const [micActive, setMicActive] = useState(true);
   const [cameraActive, setCameraActive] = useState(true);
   const [otherUsersGifLink, setOtherUsersGifLink] = useState(
-    "https://media1.giphy.com/media/xTiN0IuPQxRqzxodZm/200w_d.gif?cid=f862e515s4k9l5sctolvc5s6ddygrlm8q4lasl14udviceh4&rid=200w_d.gif&ct=g"
+    "https://media4.giphy.com/media/xTiN0IuPQxRqzxodZm/giphy.gif?cid=f862e515pl4bfcohtomjl5bywy9z170utqfu7x8coz2pwonl&rid=giphy.gif&ct=g"
   );
   const [selectedGifUrl, setSelectedGifUrl] = useState(
-    "https://media1.giphy.com/media/xTiN0IuPQxRqzxodZm/200w_d.gif?cid=f862e515s4k9l5sctolvc5s6ddygrlm8q4lasl14udviceh4&rid=200w_d.gif&ct=g"
+    "https://media4.giphy.com/media/xTiN0IuPQxRqzxodZm/giphy.gif?cid=f862e515pl4bfcohtomjl5bywy9z170utqfu7x8coz2pwonl&rid=giphy.gif&ct=g"
   );
   const selectedGifUrlRef = useRef(
-    "https://media1.giphy.com/media/xTiN0IuPQxRqzxodZm/200w_d.gif?cid=f862e515s4k9l5sctolvc5s6ddygrlm8q4lasl14udviceh4&rid=200w_d.gif&ct=g"
+    "https://media4.giphy.com/media/xTiN0IuPQxRqzxodZm/giphy.gif?cid=f862e515pl4bfcohtomjl5bywy9z170utqfu7x8coz2pwonl&rid=giphy.gif&ct=g"
   );
 
   const router: any = useRouter();
@@ -348,15 +348,17 @@ const Room = () => {
           poster='https://upload.wikimedia.org/wikipedia/commons/3/37/No_person.jpg'
         />
       </div>
-      <div className='grid grid-cols-2 gap-4'>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8'>
         <div className=''>
           <div>
             <h2 className='text-lime-500 bold'>Other user</h2>
-            <video
-              autoPlay
-              ref={peerVideoRef}
-              poster='https://upload.wikimedia.org/wikipedia/commons/3/37/No_person.jpg'
-            />
+            <div className='w-96 inline-block'>
+              <video
+                autoPlay
+                ref={peerVideoRef}
+                poster='/anonymousperson.png'
+              />
+            </div>
           </div>
 
           <div>
@@ -375,14 +377,16 @@ const Room = () => {
         <div>
           <div>
             <h1>You </h1>
-            <video
-              autoPlay
-              ref={userVideoRef}
-              poster='https://upload.wikimedia.org/wikipedia/commons/3/37/No_person.jpg'
-            />
+            <div className='w-96 inline-block'>
+              <video
+                autoPlay
+                ref={userVideoRef}
+                poster='/anonymousperson.png'
+              />
+            </div>
           </div>
 
-          <div>
+          <div className='grid grid-cols-3 gap-4 w-96'>
             <button
               onClick={toggleMic}
               type='button'
@@ -411,7 +415,7 @@ const Room = () => {
             <div className='w-96 inline-block'>
               <img src={selectedGifUrl} className='w-full'></img>
             </div>
-            <h1>Select GIF from here</h1>
+            {/* <h1>Select GIF from here</h1> */}
             <GiphySearch changeGif2={changeGif2}> </GiphySearch>
           </div>
         </div>
