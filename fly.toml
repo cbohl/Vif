@@ -1,16 +1,11 @@
-# fly.toml file generated for frosty-silence-8876 on 2023-02-18T16:36:21-06:00
+# fly.toml file generated for vif2 on 2023-02-24T12:40:00-06:00
 
-app = "frosty-silence-8876"
+app = "vif2"
 kill_signal = "SIGINT"
 kill_timeout = 5
 processes = []
 
-[build]
-  [build.args]
-    NEXT_PUBLIC_EXAMPLE = "Value goes here"
-
 [env]
-  PORT = "8080"
 
 [experimental]
   auto_rollback = true
