@@ -1,16 +1,17 @@
-# Zoof
+# Vif
 
 ## Summary
 
-Zoof is a web app for video chat with GIFs. Users can select a room number on the index page and invite their friend to join. Then, they will have a video chat with access to GIFs through the Giphy API.
+Vif is a web app for video chat with GIFs. Users can create a room on the index page and invite a friend to join. Then, they will have a video chat and the ability to share GIFs.
 
 ## Technologies Used
 
 - Next.js
 - WebRTC
 - WebSockets (through the Socket.io library)
+- CI/CD with GitHub Actions
+- Hosted via Fly.io
 - Giphy API
-- Hosted via Vercel
 
 ## Challenges and Techniques
 
@@ -28,5 +29,5 @@ Second, the project ["GIPHY Search API with CSS Grid & Flexbox"](https://gist.gi
 
 ## Feature Wishlist
 
-- Privacy via user accounts or room specific passwords.
+- Privacy with room specific passwords.
 - Code type checking by converting JavaScript files to TypeScript.
