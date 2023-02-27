@@ -1,4 +1,4 @@
-import Head from "next/head";
+// import Head from "next/head";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import styles from "../app/page.module.css";
@@ -14,14 +14,14 @@ export default function Home() {
 
   return (
     <div className={styles.container}>
-      <Head>
+      {/* <Head>
         <title>Vif: Video Hangout and GIFs</title>
         <meta
           name='description'
           content='Use Native WebRTC API for video conferencing'
         />
         <link rel='icon' href='/favicon.ico' />
-      </Head>
+      </Head> */}
 
       <NavBar></NavBar>
 
