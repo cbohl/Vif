@@ -20,7 +20,6 @@ const debounce = (func, wait = 800) => {
 };
 
 const GiphySearch = (changeGif) => {
-  // debugger;
   const [searchTerm, setSearchTerm] = useState("");
   const [searchLimit, setSearchLimit] = useState(30);
   const [searching, setSearching] = useState(false);
@@ -50,60 +49,19 @@ const GiphySearch = (changeGif) => {
   );
 
   async function getGiphyData(searchTerm) {
-    // const u = new URLSearchParams(myParams).toString();
-    // console.log("these are special", u);
-
     let gifQuery = searchTerm;
     let jsonQuery = { gifSearch: `${searchTerm}` };
 
     let stringQuery = new URLSearchParams(jsonQuery).toString();
 
     let requestString = "/api/giphy?" + stringQuery;
-    // console.log("this is the rquest string", requestString);
 
     let y = await fetch(requestString);
 
     let data = await y.json();
-    // .json()
-    // .then((response) => response.json())
-    // .then((data) => console.log("here is the data the first time", data));
-
-    console.log("trying data the first time again", data);
-
-    // if (data.meta.status === 200) {
-    //   console.log("setting gifs as these", [...data.data]);
-    //   setGifs([...data.data]);
-    //   setError(false);
-    // } else {
-    //   setError(true);
-    // }
-    // })
-    // .catch(() => setError(true))
-    // .finally(() => {
-    //   setSearching(false);
-    //   setSearched(true);
-    // });
 
     return data;
   }
-
-  // const changeGif = (url) => {
-  //   console.log("this is the url", url);
-  // };
-
-  // .then((data) => {
-  //   if (data.meta.status === 200) {
-  //     setGifs([...data.data]);
-  //     setError(false);
-  //   } else {
-  //     setError(true);
-  //   }
-  // })
-  // .catch(() => setError(true))
-  // .finally(() => {
-  //   setSearching(false);
-  //   setSearched(true);
-  // });
 
   useEffect(() => {
     if (initialRender.current) {
@@ -113,14 +71,9 @@ const GiphySearch = (changeGif) => {
 
     const fetchController = new AbortController();
 
-    // let data = getGiphyData(searchTerm);
-    // console.log("HERE IS THE DATA", data);
-
     getGiphyData(searchTerm)
-      // .then((res) => res.json())
       .then((data) => {
         if (data.meta.status === 200) {
-          console.log("in here");
           setGifs([...data.data]);
           setError(false);
         } else {
@@ -133,25 +86,11 @@ const GiphySearch = (changeGif) => {
         setSearched(true);
       });
 
-    //   if (data.meta.status === 200) {
-    //     setGifs([...data.data]);
-    //     setError(false);
-    //   } else {
-    //     setError(true);
-    //   }
-    // })
-    // .catch(() => setError(true))
-    // .finally(() => {
-    //   setSearching(false);
-    //   setSearched(true);
-    // });
-
     return () => fetchController.abort();
   }, [searchTerm, searchLimit]);
 
   return (
     <>
-      {/* <Header /> */}
       <main>
         <div className='container'>
           <Search
@@ -167,7 +106,6 @@ const GiphySearch = (changeGif) => {
           )}
         </div>
       </main>
-      {/* <Footer /> */}
     </>
   );
 };
