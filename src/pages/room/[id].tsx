@@ -1,16 +1,18 @@
 // This page, a copy of the room page, is currently necessary due to CSS rendering issues.
 // The CSS from Tailwind is not applying to the room folder. This problem needs fixing.
 
-/* eslint-disable */
+// /* eslint-disable */
 
-import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { NextRouter, useRouter } from "next/router";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import useSocket from "hooks/useSocket";
 import GiphySearch from "@/components/giphySearch";
 // import Image from "next/image";
 import styles from ".../app/page.module.css";
 import NavBar from "@/components/NavBar";
+
+// const x: number = "hello";
 
 const ICE_SERVERS = {
   iceServers: [
@@ -34,13 +36,14 @@ const Room = () => {
     "https://media4.giphy.com/media/xTiN0IuPQxRqzxodZm/giphy.gif?cid=f862e515pl4bfcohtomjl5bywy9z170utqfu7x8coz2pwonl&rid=giphy.gif&ct=g"
   );
 
-  const router: any = useRouter();
-  const userVideoRef: any = useRef();
-  const peerVideoRef: any = useRef();
-  const rtcConnectionRef: any = useRef(null);
-  const socketRef: any = useRef();
-  const userStreamRef: any = useRef();
-  const hostRef: any = useRef(false);
+  const router: NextRouter = useRouter();
+  const userVideoRef: MutableRefObject<MediaStream | undefined> = useRef();
+  const peerVideoRef: MutableRefObject<MediaStream | undefined> = useRef();
+  const rtcConnectionRef: MutableRefObject<RTCPeerConnection | null> =
+    useRef(null);
+  const socketRef: MutableRefObject<MediaStream | undefined> = useRef();
+  const userStreamRef: MutableRefObject<MediaStream | undefined> = useRef();
+  const hostRef: MutableRefObject<boolean> = useRef(false);
 
   const { id: roomName } = router.query;
 
@@ -132,18 +135,22 @@ const Room = () => {
   const initiateCall = () => {
     if (hostRef.current) {
       rtcConnectionRef.current = createPeerConnection();
-      rtcConnectionRef.current.addTrack(
-        userStreamRef.current.getTracks()[0],
-        userStreamRef.current
-      );
-      rtcConnectionRef.current.addTrack(
-        userStreamRef.current.getTracks()[1],
-        userStreamRef.current
-      );
+      if (userStreamRef.current) {
+        rtcConnectionRef.current.addTrack(
+          userStreamRef.current.getTracks()[0],
+          userStreamRef.current
+        );
+        rtcConnectionRef.current.addTrack(
+          userStreamRef.current.getTracks()[1],
+          userStreamRef.current
+        );
+      }
       rtcConnectionRef.current
         .createOffer()
         .then((offer: any) => {
-          rtcConnectionRef.current.setLocalDescription(offer);
+          if (rtcConnectionRef.current) {
+            rtcConnectionRef.current.setLocalDescription(offer);
+          }
           socketRef.current.emit("offer", offer, roomName);
         })
         .catch((error: any) => {
@@ -155,10 +162,12 @@ const Room = () => {
   const onPeerLeave = () => {
     // This person is now the creator because they are the only person in the room.
     hostRef.current = true;
-    if (peerVideoRef.current.srcObject) {
-      peerVideoRef.current.srcObject
-        .getTracks()
-        .forEach((track: any) => track.stop()); // Stops receiving all track of Peer.
+    if (peerVideoRef.current) {
+      if (peerVideoRef.current.srcObject) {
+        peerVideoRef.current.srcObject
+          .getTracks()
+          .forEach((track: any) => track.stop()); // Stops receiving all track of Peer.
+      }
     }
 
     // Safely closes the existing connection established with the peer who left.
@@ -192,20 +201,23 @@ const Room = () => {
   const handleReceivedOffer = (offer: any) => {
     if (!hostRef.current) {
       rtcConnectionRef.current = createPeerConnection();
-      rtcConnectionRef.current.addTrack(
-        userStreamRef.current.getTracks()[0],
-        userStreamRef.current
-      );
-      rtcConnectionRef.current.addTrack(
-        userStreamRef.current.getTracks()[1],
-        userStreamRef.current
-      );
-      rtcConnectionRef.current.setRemoteDescription(offer);
-
+      if (userStreamRef.current) {
+        rtcConnectionRef.current.addTrack(
+          userStreamRef.current.getTracks()[0],
+          userStreamRef.current
+        );
+        rtcConnectionRef.current.addTrack(
+          userStreamRef.current.getTracks()[1],
+          userStreamRef.current
+        );
+        rtcConnectionRef.current.setRemoteDescription(offer);
+      }
       rtcConnectionRef.current
         .createAnswer()
         .then((answer: any) => {
-          rtcConnectionRef.current.setLocalDescription(answer);
+          if (rtcConnectionRef.current) {
+            rtcConnectionRef.current.setLocalDescription(answer);
+          }
           socketRef.current.emit("answer", answer, roomName);
         })
         .catch((error: any) => {
@@ -215,9 +227,11 @@ const Room = () => {
   };
 
   const handleAnswer = (answer: any) => {
-    rtcConnectionRef.current
-      .setRemoteDescription(answer)
-      .catch((err: any) => console.log(err));
+    if (rtcConnectionRef.current) {
+      rtcConnectionRef.current
+        .setRemoteDescription(answer)
+        .catch((err: any) => console.log(err));
+    }
   };
 
   const handleICECandidateEvent = (event: any) => {
@@ -229,9 +243,11 @@ const Room = () => {
   const handlerNewIceCandidateMsg = (incoming: any) => {
     // We cast the incoming candidate to RTCIceCandidate
     const candidate = new RTCIceCandidate(incoming);
-    rtcConnectionRef.current
-      .addIceCandidate(candidate)
-      .catch((e: any) => console.log(e));
+    if (rtcConnectionRef.current) {
+      rtcConnectionRef.current
+        .addIceCandidate(candidate)
+        .catch((e: any) => console.log(e));
+    }
   };
 
   const handleTrackEvent = (event: any) => {
@@ -240,12 +256,14 @@ const Room = () => {
   };
 
   const toggleMediaStream = (type: any, state: any) => {
-    userStreamRef.current.getTracks().forEach((track: any) => {
-      if (track.kind === type) {
-        // eslint-disable-next-line no-param-reassign
-        track.enabled = !state;
-      }
-    });
+    if (userStreamRef.current) {
+      userStreamRef.current.getTracks().forEach((track: any) => {
+        if (track.kind === type) {
+          // eslint-disable-next-line no-param-reassign
+          track.enabled = !state;
+        }
+      });
+    }
   };
 
   const toggleMic = () => {
