@@ -5,10 +5,20 @@
 
 import { NextRouter, useRouter } from "next/router";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import useSocket from "hooks/useSocket";
 import GiphySearch from "@/components/giphySearch";
 import NavBar from "@/components/NavBar";
+
+interface ServerToClientEvents {
+  noArg: () => void;
+  basicEmit: (a: number, b: string, c: Buffer) => void;
+  withAck: (d: string, callback: (e: number) => void) => void;
+}
+
+interface ClientToServerEvents {
+  hello: () => void;
+}
 
 const ICE_SERVERS = {
   iceServers: [
@@ -37,13 +47,17 @@ const Room = () => {
   const peerVideoRef: MutableRefObject<HTMLMediaElement | undefined> = useRef();
   const rtcConnectionRef: MutableRefObject<RTCPeerConnection | null> =
     useRef(null);
-  const socketRef: MutableRefObject<MediaStream | undefined> = useRef();
+  const socketRef: MutableRefObject<
+    Socket<ServerToClientEvents, ClientToServerEvents> | undefined
+  > = useRef();
   const userStreamRef: MutableRefObject<MediaStream | undefined> = useRef();
   const hostRef: MutableRefObject<boolean> = useRef(false);
 
   const { id: roomName } = router.query;
 
   useEffect(() => {
+    socketRef.current = io();
+
     socketRef.current = io();
     // First we join a room
     socketRef.current.emit("join", roomName);
@@ -80,7 +94,11 @@ const Room = () => {
     });
 
     // clear up after
-    return () => socketRef.current.disconnect();
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
   }, [roomName]);
 
   const handleRoomJoined = () => {
@@ -102,7 +120,9 @@ const Room = () => {
             }
           };
         }
-        socketRef.current.emit("ready", roomName);
+        if (socketRef.current) {
+          socketRef.current.emit("ready", roomName);
+        }
       })
       .catch((err: string) => {
         console.log(err);
@@ -156,7 +176,7 @@ const Room = () => {
       }
       rtcConnectionRef.current
         .createOffer()
-        .then((offer: any) => {
+        .then((offer: RTCSessionDescriptionInit) => {
           if (rtcConnectionRef.current) {
             rtcConnectionRef.current
               .setLocalDescription(offer)
@@ -211,7 +231,7 @@ const Room = () => {
     return connection;
   };
 
-  const handleReceivedOffer = (offer: any) => {
+  const handleReceivedOffer = (offer: RTCSessionDescriptionInit) => {
     if (!hostRef.current) {
       rtcConnectionRef.current = createPeerConnection();
       if (userStreamRef.current) {
@@ -229,35 +249,39 @@ const Room = () => {
       }
       rtcConnectionRef.current
         .createAnswer()
-        .then((answer: any) => {
+        .then((answer: RTCSessionDescriptionInit) => {
           if (rtcConnectionRef.current) {
             rtcConnectionRef.current
               .setLocalDescription(answer)
               .catch((err: string) => console.log(err));
           }
-          socketRef.current.emit("answer", answer, roomName);
+          if (socketRef.current) {
+            socketRef.current.emit("answer", answer, roomName);
+          }
         })
-        .catch((error: any) => {
-          console.log(error);
+        .catch((err: string) => {
+          console.log(err);
         });
     }
   };
 
-  const handleAnswer = (answer: any) => {
+  const handleAnswer = (answer: RTCSessionDescriptionInit) => {
     if (rtcConnectionRef.current) {
       rtcConnectionRef.current
         .setRemoteDescription(answer)
-        .catch((err: any) => console.log(err));
+        .catch((err: string) => console.log(err));
     }
   };
 
-  const handleICECandidateEvent = (event: any) => {
+  const handleICECandidateEvent = (event: RTCIceCandidate) => {
     if (event.candidate) {
-      socketRef.current.emit("ice-candidate", event.candidate, roomName);
+      if (socketRef.current) {
+        socketRef.current.emit("ice-candidate", event.candidate, roomName);
+      }
     }
   };
 
-  const handlerNewIceCandidateMsg = (incoming: any) => {
+  const handlerNewIceCandidateMsg = (incoming: RTCIceCandidateInit) => {
     // We cast the incoming candidate to RTCIceCandidate
     const candidate = new RTCIceCandidate(incoming);
     if (rtcConnectionRef.current) {
@@ -267,9 +291,10 @@ const Room = () => {
     }
   };
 
-  const handleTrackEvent = (event: any) => {
-    // eslint-disable-next-line prefer-destructuring
-    peerVideoRef.current.srcObject = event.streams[0];
+  const handleTrackEvent = (event: RTCTrackEvent) => {
+    if (peerVideoRef.current) {
+      peerVideoRef.current.srcObject = event.streams[0];
+    }
   };
 
   const toggleMediaStream = (type: any, state: any) => {
@@ -293,7 +318,7 @@ const Room = () => {
     setCameraActive((prev) => !prev);
   };
 
-  const gifLinkToServer = (url: any) => {
+  const gifLinkToServer = (url: string) => {
     if (socketRef.current) {
       socketRef.current.emit("set-gif-to-server", url, roomName);
     }
