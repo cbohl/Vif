@@ -31,7 +31,7 @@
     ".next/types/**/*.ts",
     "src/components/gif.tsx",
     "src/components/debounce.js",
-    "src/components/loader.js"
+    "src/components/loader.tsx"
   ],
   "exclude": ["node_modules", ".next", ".vercel", "out"]
 }

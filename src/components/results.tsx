@@ -25,8 +25,8 @@ const Results = ({
   changeGif,
 }: {
   gifs: GifObject[];
-  error: string;
-  changeGif: Function;
+  error: boolean;
+  changeGif: () => void;
 }) => {
   return (
     <div className='gif-results grid grid-cols-3 gap-4 w-96' aria-live='polite'>

@@ -1,9 +1,18 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import Search from "./search.js";
-import Loader from "./loader.js";
+import Search from "./search";
+import Loader from "./loader";
 import Results from "./results";
 
-const debounce = (func, wait = 800) => {
+interface Meta {
+  status: number;
+}
+interface APIRequestResult {
+  meta: Meta;
+  data: [];
+}
+
+// Debounce could benefit from refactoring and needs type checking improvements
+const debounce = (func: () => void, wait = 800) => {
   let timeout;
 
   return function () {
@@ -19,7 +28,7 @@ const debounce = (func, wait = 800) => {
   };
 };
 
-const GiphySearch = (changeGif: Function) => {
+const GiphySearch = (changeGif: () => void) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchLimit, setSearchLimit] = useState(30);
   const [searching, setSearching] = useState(false);
@@ -57,7 +66,8 @@ const GiphySearch = (changeGif: Function) => {
 
     const fetchResults = await fetch(requestString);
 
-    let data = await fetchResults.json();
+    const data: APIRequestResult =
+      (await fetchResults.json()) as APIRequestResult;
 
     return data;
   }
@@ -93,7 +103,7 @@ const GiphySearch = (changeGif: Function) => {
       <main>
         <div className='container'>
           <Search
-            gifLimit={5}
+            gifLimit={9}
             handleSearchTermInput={(e: Event) => {
               if (e.target) {
                 handleSearchTermInput(e.target.value);

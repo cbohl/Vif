@@ -1,4 +1,10 @@
-const Search = ({ handleSearchTermInput }) => {
+const Search = ({
+  gifLimit,
+  handleSearchTermInput,
+}: {
+  gifLimit: number;
+  handleSearchTermInput: (e: Event) => void;
+}) => {
   return (
     <div className='gif-search'>
       <div className='gif-search__field'>
