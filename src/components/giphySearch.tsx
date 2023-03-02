@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import Search from "./search.js";
 import Loader from "./loader.js";
-import Results from "./results.js";
+import Results from "./results";
 
 const debounce = (func, wait = 800) => {
   let timeout;
@@ -19,7 +19,7 @@ const debounce = (func, wait = 800) => {
   };
 };
 
-const GiphySearch = (changeGif) => {
+const GiphySearch = (changeGif: Function) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchLimit, setSearchLimit] = useState(30);
   const [searching, setSearching] = useState(false);
@@ -48,17 +48,16 @@ const GiphySearch = (changeGif) => {
     })
   );
 
-  async function getGiphyData(searchTerm) {
-    let gifQuery = searchTerm;
-    let jsonQuery = { gifSearch: `${searchTerm}` };
+  async function getGiphyData(searchTerm: string) {
+    const jsonQuery = { gifSearch: `${searchTerm}` };
 
-    let stringQuery = new URLSearchParams(jsonQuery).toString();
+    const stringQuery = new URLSearchParams(jsonQuery).toString();
 
-    let requestString = "/api/giphy?" + stringQuery;
+    const requestString = "/api/giphy?" + stringQuery;
 
-    let y = await fetch(requestString);
+    const fetchResults = await fetch(requestString);
 
-    let data = await y.json();
+    let data = await fetchResults.json();
 
     return data;
   }
@@ -95,10 +94,16 @@ const GiphySearch = (changeGif) => {
         <div className='container'>
           <Search
             gifLimit={5}
-            handleSearchTermInput={(e) => handleSearchTermInput(e.target.value)}
-            handleSearchLimitInput={(e) =>
-              handleSearchLimitInput(e.target.value)
-            }
+            handleSearchTermInput={(e: Event) => {
+              if (e.target) {
+                handleSearchTermInput(e.target.value);
+              }
+            }}
+            handleSearchLimitInput={(e: Event) => {
+              if (e.target) {
+                handleSearchLimitInput(e.target.value);
+              }
+            }}
           />
           {searching && <Loader />}
           {!searching && searched && (
