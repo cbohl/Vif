@@ -1,3 +1,5 @@
+import React from "react";
+
 interface Fixed_width_downsampled {
   url: string;
 }

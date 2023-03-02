@@ -1,3 +1,4 @@
+import React from "react";
 import Gif from "./gif";
 
 interface Fixed_width_downsampled {
