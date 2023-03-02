@@ -3,6 +3,10 @@ import { useState } from "react";
 import styles from "../app/page.module.css";
 import NavBar from "@/components/NavBar";
 
+interface KeyboardEvent {
+  key: string;
+}
+
 export default function Home() {
   const router = useRouter();
   const [roomName, setRoomName] = useState("");
@@ -11,9 +15,8 @@ export default function Home() {
     router.push(`/room/${roomName || Math.random().toString(36).slice(2)}`);
   };
 
-  const downHandler = (e) => {
-    //it triggers by pressing the enter key
-    if (e.keyCode === 13) {
+  const downHandler = (e: KeyboardEvent) => {
+    if (e.key === "Enter") {
       joinRoom();
     }
   };
