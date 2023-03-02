@@ -24,6 +24,14 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/components/gif.tsx",
+    "src/components/debounce.js",
+    "src/components/loader.tsx"
+  ],
+  "exclude": ["node_modules", ".next", ".vercel", "out"]
 }

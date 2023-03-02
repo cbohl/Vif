@@ -1,16 +1,24 @@
 // This page, a copy of the room page, is currently necessary due to CSS rendering issues.
 // The CSS from Tailwind is not applying to the room folder. This problem needs fixing.
 
-/* eslint-disable */
+// /* eslint-disable */
 
-import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
-import { io } from "socket.io-client";
+import { NextRouter, useRouter } from "next/router";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { io, Socket } from "socket.io-client";
 import useSocket from "hooks/useSocket";
 import GiphySearch from "@/components/giphySearch";
-// import Image from "next/image";
-import styles from ".../app/page.module.css";
 import NavBar from "@/components/NavBar";
+
+interface ServerToClientEvents {
+  noArg: () => void;
+  basicEmit: (a: number, b: string, c: Buffer) => void;
+  withAck: (d: string, callback: (e: number) => void) => void;
+}
+
+interface ClientToServerEvents {
+  hello: () => void;
+}
 
 const ICE_SERVERS = {
   iceServers: [
@@ -34,17 +42,22 @@ const Room = () => {
     "https://media4.giphy.com/media/xTiN0IuPQxRqzxodZm/giphy.gif?cid=f862e515pl4bfcohtomjl5bywy9z170utqfu7x8coz2pwonl&rid=giphy.gif&ct=g"
   );
 
-  const router: any = useRouter();
-  const userVideoRef: any = useRef();
-  const peerVideoRef: any = useRef();
-  const rtcConnectionRef: any = useRef(null);
-  const socketRef: any = useRef();
-  const userStreamRef: any = useRef();
-  const hostRef: any = useRef(false);
+  const router: NextRouter = useRouter();
+  const userVideoRef: MutableRefObject<HTMLMediaElement | undefined> = useRef();
+  const peerVideoRef: MutableRefObject<HTMLMediaElement | undefined> = useRef();
+  const rtcConnectionRef: MutableRefObject<RTCPeerConnection | null> =
+    useRef(null);
+  const socketRef: MutableRefObject<
+    Socket<ServerToClientEvents, ClientToServerEvents> | undefined
+  > = useRef();
+  const userStreamRef: MutableRefObject<MediaStream | undefined> = useRef();
+  const hostRef: MutableRefObject<boolean> = useRef(false);
 
   const { id: roomName } = router.query;
 
   useEffect(() => {
+    socketRef.current = io();
+
     socketRef.current = io();
     // First we join a room
     socketRef.current.emit("join", roomName);
@@ -81,7 +94,11 @@ const Room = () => {
     });
 
     // clear up after
-    return () => socketRef.current.disconnect();
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
   }, [roomName]);
 
   const handleRoomJoined = () => {
@@ -93,18 +110,27 @@ const Room = () => {
       .then((stream) => {
         /* use the stream */
         userStreamRef.current = stream;
-        userVideoRef.current.srcObject = stream;
-        userVideoRef.current.onloadedmetadata = () => {
-          userVideoRef.current.play();
-        };
-        socketRef.current.emit("ready", roomName);
+        if (userVideoRef.current) {
+          userVideoRef.current.srcObject = stream;
+          userVideoRef.current.onloadedmetadata = () => {
+            if (userVideoRef.current) {
+              userVideoRef.current
+                .play()
+                .catch((err: string) => console.log(err));
+            }
+          };
+        }
+        if (socketRef.current) {
+          socketRef.current.emit("ready", roomName);
+        }
       })
-      .catch((err: any) => {
-        /* handle the error */
-        console.log("error", err);
+      .catch((err: string) => {
+        console.log(err);
       });
 
-    socketRef.current.emit("new-peer-to-server", roomName);
+    if (socketRef.current) {
+      socketRef.current.emit("new-peer-to-server", roomName);
+    }
     gifLinkToServer(selectedGifUrl);
   };
 
@@ -118,12 +144,18 @@ const Room = () => {
       .then((stream) => {
         /* use the stream */
         userStreamRef.current = stream;
-        userVideoRef.current.srcObject = stream;
-        userVideoRef.current.onloadedmetadata = () => {
-          userVideoRef.current.play();
-        };
+        if (userVideoRef.current) {
+          userVideoRef.current.srcObject = stream;
+          userVideoRef.current.onloadedmetadata = () => {
+            if (userVideoRef.current) {
+              userVideoRef.current
+                .play()
+                .catch((err: string) => console.log(err));
+            }
+          };
+        }
       })
-      .catch((err: any) => {
+      .catch((err: string) => {
         /* handle the error */
         console.log(err);
       });
@@ -132,21 +164,29 @@ const Room = () => {
   const initiateCall = () => {
     if (hostRef.current) {
       rtcConnectionRef.current = createPeerConnection();
-      rtcConnectionRef.current.addTrack(
-        userStreamRef.current.getTracks()[0],
-        userStreamRef.current
-      );
-      rtcConnectionRef.current.addTrack(
-        userStreamRef.current.getTracks()[1],
-        userStreamRef.current
-      );
+      if (userStreamRef.current) {
+        rtcConnectionRef.current.addTrack(
+          userStreamRef.current.getTracks()[0],
+          userStreamRef.current
+        );
+        rtcConnectionRef.current.addTrack(
+          userStreamRef.current.getTracks()[1],
+          userStreamRef.current
+        );
+      }
       rtcConnectionRef.current
         .createOffer()
-        .then((offer: any) => {
-          rtcConnectionRef.current.setLocalDescription(offer);
-          socketRef.current.emit("offer", offer, roomName);
+        .then((offer: RTCSessionDescriptionInit) => {
+          if (rtcConnectionRef.current) {
+            rtcConnectionRef.current
+              .setLocalDescription(offer)
+              .catch((err: string) => console.log(err));
+          }
+          if (socketRef.current) {
+            socketRef.current.emit("offer", offer, roomName);
+          }
         })
-        .catch((error: any) => {
+        .catch((error: string) => {
           console.log(error);
         });
     }
@@ -155,10 +195,12 @@ const Room = () => {
   const onPeerLeave = () => {
     // This person is now the creator because they are the only person in the room.
     hostRef.current = true;
-    if (peerVideoRef.current.srcObject) {
-      peerVideoRef.current.srcObject
-        .getTracks()
-        .forEach((track: any) => track.stop()); // Stops receiving all track of Peer.
+    if (peerVideoRef.current) {
+      if (peerVideoRef.current.srcObject) {
+        peerVideoRef.current.srcObject
+          .getTracks()
+          .forEach((track: any) => track.stop()); // Stops receiving all track of Peer.
+      }
     }
 
     // Safely closes the existing connection established with the peer who left.
@@ -189,63 +231,81 @@ const Room = () => {
     return connection;
   };
 
-  const handleReceivedOffer = (offer: any) => {
+  const handleReceivedOffer = (offer: RTCSessionDescriptionInit) => {
     if (!hostRef.current) {
       rtcConnectionRef.current = createPeerConnection();
-      rtcConnectionRef.current.addTrack(
-        userStreamRef.current.getTracks()[0],
-        userStreamRef.current
-      );
-      rtcConnectionRef.current.addTrack(
-        userStreamRef.current.getTracks()[1],
-        userStreamRef.current
-      );
-      rtcConnectionRef.current.setRemoteDescription(offer);
-
+      if (userStreamRef.current) {
+        rtcConnectionRef.current.addTrack(
+          userStreamRef.current.getTracks()[0],
+          userStreamRef.current
+        );
+        rtcConnectionRef.current.addTrack(
+          userStreamRef.current.getTracks()[1],
+          userStreamRef.current
+        );
+        rtcConnectionRef.current
+          .setRemoteDescription(offer)
+          .catch((err: string) => console.log(err));
+      }
       rtcConnectionRef.current
         .createAnswer()
-        .then((answer: any) => {
-          rtcConnectionRef.current.setLocalDescription(answer);
-          socketRef.current.emit("answer", answer, roomName);
+        .then((answer: RTCSessionDescriptionInit) => {
+          if (rtcConnectionRef.current) {
+            rtcConnectionRef.current
+              .setLocalDescription(answer)
+              .catch((err: string) => console.log(err));
+          }
+          if (socketRef.current) {
+            socketRef.current.emit("answer", answer, roomName);
+          }
         })
-        .catch((error: any) => {
-          console.log(error);
+        .catch((err: string) => {
+          console.log(err);
         });
     }
   };
 
-  const handleAnswer = (answer: any) => {
-    rtcConnectionRef.current
-      .setRemoteDescription(answer)
-      .catch((err: any) => console.log(err));
-  };
-
-  const handleICECandidateEvent = (event: any) => {
-    if (event.candidate) {
-      socketRef.current.emit("ice-candidate", event.candidate, roomName);
+  const handleAnswer = (answer: RTCSessionDescriptionInit) => {
+    if (rtcConnectionRef.current) {
+      rtcConnectionRef.current
+        .setRemoteDescription(answer)
+        .catch((err: string) => console.log(err));
     }
   };
 
-  const handlerNewIceCandidateMsg = (incoming: any) => {
-    // We cast the incoming candidate to RTCIceCandidate
-    const candidate = new RTCIceCandidate(incoming);
-    rtcConnectionRef.current
-      .addIceCandidate(candidate)
-      .catch((e: any) => console.log(e));
+  const handleICECandidateEvent = (event: RTCIceCandidate) => {
+    if (event.candidate) {
+      if (socketRef.current) {
+        socketRef.current.emit("ice-candidate", event.candidate, roomName);
+      }
+    }
   };
 
-  const handleTrackEvent = (event: any) => {
-    // eslint-disable-next-line prefer-destructuring
-    peerVideoRef.current.srcObject = event.streams[0];
+  const handlerNewIceCandidateMsg = (incoming: RTCIceCandidateInit) => {
+    // We cast the incoming candidate to RTCIceCandidate
+    const candidate = new RTCIceCandidate(incoming);
+    if (rtcConnectionRef.current) {
+      rtcConnectionRef.current
+        .addIceCandidate(candidate)
+        .catch((e: string) => console.log(e));
+    }
+  };
+
+  const handleTrackEvent = (event: RTCTrackEvent) => {
+    if (peerVideoRef.current) {
+      peerVideoRef.current.srcObject = event.streams[0];
+    }
   };
 
   const toggleMediaStream = (type: any, state: any) => {
-    userStreamRef.current.getTracks().forEach((track: any) => {
-      if (track.kind === type) {
-        // eslint-disable-next-line no-param-reassign
-        track.enabled = !state;
-      }
-    });
+    if (userStreamRef.current) {
+      userStreamRef.current.getTracks().forEach((track: any) => {
+        if (track.kind === type) {
+          // eslint-disable-next-line no-param-reassign
+          track.enabled = !state;
+        }
+      });
+    }
   };
 
   const toggleMic = () => {
@@ -258,35 +318,47 @@ const Room = () => {
     setCameraActive((prev) => !prev);
   };
 
-  const gifLinkToServer = (url: any) => {
-    socketRef.current.emit("set-gif-to-server", url, roomName);
+  const gifLinkToServer = (url: string) => {
+    if (socketRef.current) {
+      socketRef.current.emit("set-gif-to-server", url, roomName);
+    }
   };
 
   const leaveRoom = () => {
-    socketRef.current.emit("leave", roomName); // Let's the server know that user has left the room.
-
-    if (userVideoRef.current.srcObject) {
-      userVideoRef.current.srcObject
-        .getTracks()
-        .forEach((track: any) => track.stop()); // Stops receiving all track of User.
-    }
-    if (peerVideoRef.current.srcObject) {
-      peerVideoRef.current.srcObject
-        .getTracks()
-        .forEach((track: any) => track.stop()); // Stops receiving audio track of Peer.
+    if (socketRef.current) {
+      socketRef.current.emit("leave", roomName); // Let's the server know that user has left the room.
     }
 
-    // Checks if there is peer on the other side and safely closes the existing connection established with the peer.
+    if (userVideoRef.current) {
+      if (userVideoRef.current.srcObject) {
+        userVideoRef.current.srcObject
+          .getTracks()
+          .forEach((track: any) => track.stop()); // Stops receiving all track of User.
+      }
+    }
+
+    if (userVideoRef.current) {
+      if (userVideoRef.current.srcObject) {
+        if (peerVideoRef.current) {
+          if (peerVideoRef.current.srcObject) {
+            peerVideoRef.current.srcObject
+              .getTracks()
+              .forEach((track: any) => track.stop()); // Stops receiving audio track of Peer.
+          }
+        }
+      }
+    }
+
     if (rtcConnectionRef.current) {
       rtcConnectionRef.current.ontrack = null;
       rtcConnectionRef.current.onicecandidate = null;
       rtcConnectionRef.current.close();
       rtcConnectionRef.current = null;
     }
-    router.push("/");
+    router.push("/").catch((err: string) => console.log(err));
   };
 
-  const changeGif = (url: any) => {
+  const changeGif = (url: string) => {
     selectedGifUrlRef.current = url;
     setSelectedGifUrl(url);
     gifLinkToServer(url);
@@ -295,51 +367,6 @@ const Room = () => {
   return (
     <div>
       <NavBar></NavBar>
-      {/* <div className='w-12 h-12 bg-black'></div> */}
-
-      {/* <div className='space-y-4 font-mono font-bold text-xs text-center text-white'> */}
-      {/* <div className='px-4 py-2 bg-blue-500 rounded-lg shadow-lg w-96 sm:block'>
-        w-96
-      </div> */}
-      {/* </div> */}
-      {/* <div class='bg-gray-400 p-2'>
-        <span class='hidden bg-teal-400'>One</span>
-        <span class='block bg-teal-400'>Two</span>
-      </div> */}
-
-      {/* <div className='p-8 bg-amber-300'>
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8'>
-          <div className='p-4 bg-cyan-400 rounded-md flex items-center justify-center'>
-            1
-          </div>
-          <div className='p-4 bg-cyan-400 rounded-md flex items-center justify-center'>
-            2
-          </div>
-          <div className='p-4 bg-cyan-400 rounded-md flex items-center justify-center'>
-            3
-          </div>
-          <div className='p-4 bg-cyan-400 rounded-md flex items-center justify-center'>
-            4
-          </div>
-          <div className='p-4 bg-cyan-400 rounded-md flex items-center justify-center'>
-            5
-          </div>
-          <div className='p-4 bg-cyan-400 rounded-md flex items-center justify-center'>
-            6
-          </div>
-          <div className='p-4 bg-cyan-400 rounded-md flex items-center justify-center'>
-            7
-          </div>
-          <div className='p-4 bg-cyan-400 rounded-md flex items-center justify-center'>
-            8
-          </div>
-        </div>
-      </div> */}
-
-      {/* <div className='grid grid-cols-4 gap-4'>
-        <div>01</div>
-        <div>09</div>
-      </div> */}
 
       <div className='hidden'>
         <h1 className='invisible text-lime-500'>You </h1>
@@ -353,7 +380,6 @@ const Room = () => {
       <div className='grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8'>
         <div className=''>
           <div>
-            {/* <h2 className='text-lime-500 bold'>Other user</h2> */}
             <div className='w-96 inline-block'>
               <video
                 autoPlay
@@ -364,12 +390,6 @@ const Room = () => {
           </div>
 
           <div>
-            {/* <h1>Dispay other users GIF here</h1> */}
-            {/* <button onClick={gifLinkToServer} type='button'>
-              Set new gif link here
-            </button> */}
-            {/* <img src={otherUsersGifLink} className='w-50'></img> */}
-            {/* <div className='w-80 h-10 inline-block bg-black'></div> */}
             <div className='w-96 inline-block'>
               <img src={otherUsersGifLink} className='w-full'></img>
             </div>
@@ -378,7 +398,6 @@ const Room = () => {
 
         <div>
           <div>
-            {/* <h1>You </h1> */}
             <div className='w-44 inline-block'>
               <video
                 autoPlay
@@ -386,7 +405,6 @@ const Room = () => {
                 poster='/anonymousperson.png'
               />
             </div>
-            {/* <h1>Display select GIF here</h1> */}
             <div className='w-44 inline-block'>
               <img src={selectedGifUrl} className='w-full'></img>
             </div>
@@ -417,7 +435,6 @@ const Room = () => {
           </div>
 
           <div>
-            {/* <h1>Select GIF from here</h1> */}
             <GiphySearch changeGif={changeGif}> </GiphySearch>
           </div>
         </div>

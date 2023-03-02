@@ -1,8 +1,11 @@
-import Head from "next/head";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import styles from "../app/page.module.css";
 import NavBar from "@/components/NavBar";
+
+interface KeyboardEvent {
+  key: string;
+}
 
 export default function Home() {
   const router = useRouter();
@@ -12,17 +15,14 @@ export default function Home() {
     router.push(`/room/${roomName || Math.random().toString(36).slice(2)}`);
   };
 
+  const downHandler = (e: KeyboardEvent) => {
+    if (e.key === "Enter") {
+      joinRoom();
+    }
+  };
+
   return (
     <div className={styles.container}>
-      <Head>
-        <title>Vif: Video Hangout and GIFs</title>
-        <meta
-          name='description'
-          content='Use Native WebRTC API for video conferencing'
-        />
-        <link rel='icon' href='/favicon.ico' />
-      </Head>
-
       <NavBar></NavBar>
 
       <main className={styles.main}>
@@ -38,6 +38,9 @@ export default function Home() {
           value={roomName}
           className='bg-green-50 border border-green-500 text-green-900 dark:text-green-400 placeholder-green-700 dark:placeholder-green-500 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-96 p-2.5 dark:bg-gray-700 dark:border-green-500'
           placeholder='e.g. PartyPlace'
+          onKeyDown={(e) => {
+            downHandler(e);
+          }}
         />
         <button
           onClick={joinRoom}
