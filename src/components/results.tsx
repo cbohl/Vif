@@ -1,23 +1,23 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
 import Gif from "./gif";
 
-interface Fixed_width_downsampled {
+interface SpecificImageProps {
   url: string;
 }
 
-interface Downsized_large {
-  url: string;
-}
-
-interface Image {
-  fixed_width_downsampled: Fixed_width_downsampled;
-  downsized_large: Downsized_large;
+interface ImagesProps {
+  fixed_width_downsampled: SpecificImageProps;
+  downsized_large: SpecificImageProps;
 }
 
 interface GifObject {
   id: number;
-  images: Image[];
+  images: ImagesProps;
   title: string;
+}
+
+interface ChangeGifProps extends PropsWithChildren {
+  changeGif: (url: string) => void;
 }
 
 const Results = ({
@@ -27,7 +27,7 @@ const Results = ({
 }: {
   gifs: GifObject[];
   error: boolean;
-  changeGif: () => void;
+  changeGif: ChangeGifProps;
 }) => {
   return (
     <div className='gif-results grid grid-cols-3 gap-4 w-96' aria-live='polite'>

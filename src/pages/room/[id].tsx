@@ -10,14 +10,8 @@ import useSocket from "hooks/useSocket";
 import GiphySearch from "@/components/giphySearch";
 import NavBar from "@/components/NavBar";
 
-interface ServerToClientEvents {
-  noArg: () => void;
-  basicEmit: (a: number, b: string, c: Buffer) => void;
-  withAck: (d: string, callback: (e: number) => void) => void;
-}
-
-interface ClientToServerEvents {
-  hello: () => void;
+interface NamespaceSpecificClientToServerEvents {
+  joined: (arg: string) => void;
 }
 
 const ICE_SERVERS = {
@@ -48,7 +42,7 @@ const Room = () => {
   const rtcConnectionRef: MutableRefObject<RTCPeerConnection | null> =
     useRef(null);
   const socketRef: MutableRefObject<
-    Socket<ServerToClientEvents, ClientToServerEvents> | undefined
+    Socket<Socket<NamespaceSpecificClientToServerEvents>> | undefined
   > = useRef();
   const userStreamRef: MutableRefObject<MediaStream | undefined> = useRef();
   const hostRef: MutableRefObject<boolean> = useRef(false);
@@ -58,7 +52,6 @@ const Room = () => {
   useEffect(() => {
     socketRef.current = io();
 
-    socketRef.current = io();
     // First we join a room
     socketRef.current.emit("join", roomName);
 
@@ -435,7 +428,7 @@ const Room = () => {
           </div>
 
           <div>
-            <GiphySearch changeGif={changeGif}> </GiphySearch>
+            <GiphySearch changeGif={changeGif}></GiphySearch>
           </div>
         </div>
       </div>

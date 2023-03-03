@@ -1,7 +1,7 @@
 import React from "react";
 
 const Search = ({
-  gifLimit,
+  // gifLimit,
   handleSearchTermInput,
 }: // handleSearchLimitInput,
 {

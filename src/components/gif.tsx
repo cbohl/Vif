@@ -1,4 +1,4 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
 
 interface SpecificImageProps {
   url: string;
@@ -15,7 +15,17 @@ interface GifObject {
   title: string;
 }
 
-const Gif = ({ gif, changeGif }: { gif: GifObject; changeGif: any }) => {
+interface ChangeGifProps extends PropsWithChildren {
+  changeGif: (url: string) => void;
+}
+
+const Gif = ({
+  gif,
+  changeGif,
+}: {
+  gif: GifObject;
+  changeGif: ChangeGifProps;
+}) => {
   return (
     <div className='gif'>
       <div onClick={() => changeGif.changeGif(gif.images.downsized_large.url)}>

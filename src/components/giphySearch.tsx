@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  PropsWithChildren,
+} from "react";
 import Search from "./search";
 import Loader from "./loader";
 import Results from "./results";
@@ -11,6 +17,10 @@ interface APIRequestResult {
   data: [];
 }
 
+interface ChangeGifProps extends PropsWithChildren {
+  changeGif: (url: string) => void;
+}
+
 const debounce = (fn: Function, ms = 300) => {
   let timeoutId: ReturnType<typeof setTimeout>;
   return function (this: any, ...args: any[]) {
@@ -19,7 +29,7 @@ const debounce = (fn: Function, ms = 300) => {
   };
 };
 
-const GiphySearch = (changeGif: () => void) => {
+const GiphySearch = (changeGif: ChangeGifProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   // const [searchLimit, setSearchLimit] = useState(30);
   const [searching, setSearching] = useState(false);
