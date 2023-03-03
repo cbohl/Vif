@@ -11,20 +11,11 @@ interface APIRequestResult {
   data: [];
 }
 
-// Debounce could benefit from refactoring and needs type checking improvements
-const debounce = (func: () => void, wait = 800) => {
-  let timeout;
-
-  return function () {
-    const context = this;
-    const args = arguments;
-
-    clearTimeout(timeout);
-
-    timeout = setTimeout(() => {
-      timeout = null;
-      func.apply(context, args);
-    }, wait);
+const debounce = (fn: Function, ms = 300) => {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  return function (this: any, ...args: any[]) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn.apply(this, args), ms);
   };
 };
 
