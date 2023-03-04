@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useMemo,
+  useRef,
+  PropsWithChildren,
+} from "react";
 import Search from "./search";
 import Loader from "./loader";
 import Results from "./results";
@@ -11,26 +17,21 @@ interface APIRequestResult {
   data: [];
 }
 
-// Debounce could benefit from refactoring and needs type checking improvements
-const debounce = (func: () => void, wait = 800) => {
-  let timeout;
+interface ChangeGifProps extends PropsWithChildren {
+  changeGif: (url: string) => void;
+}
 
-  return function () {
-    const context = this;
-    const args = arguments;
-
-    clearTimeout(timeout);
-
-    timeout = setTimeout(() => {
-      timeout = null;
-      func.apply(context, args);
-    }, wait);
+const debounce = (fn: Function, ms = 300) => {
+  let timeoutId: ReturnType<typeof setTimeout>;
+  return function (this: any, ...args: any[]) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => fn.apply(this, args), ms);
   };
 };
 
-const GiphySearch = (changeGif: () => void) => {
+const GiphySearch = (changeGif: ChangeGifProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [searchLimit, setSearchLimit] = useState(30);
+  // const [searchLimit, setSearchLimit] = useState(30);
   const [searching, setSearching] = useState(false);
   const [searched, setSearched] = useState(false);
   const [error, setError] = useState(false);
@@ -38,24 +39,30 @@ const GiphySearch = (changeGif: () => void) => {
 
   const initialRender = useRef(true);
 
-  const handleSearchTermInput = useMemo(() =>
-    debounce((inputValue) => {
-      setSearching(true);
-      setSearchTerm(inputValue);
-    })
+  const handleSearchTermInput = useMemo(
+    () =>
+      debounce((inputValue: string) => {
+        setSearching(true);
+        setSearchTerm(inputValue);
+      }),
+    []
   );
 
-  const handleSearchLimitInput = useMemo(() =>
-    debounce((inputValue) => {
-      if (inputValue > gifLimit) {
-        inputValue = gifLimit;
-      } else if (inputValue < 1) {
-        inputValue = 1;
-      }
-      setSearching(true);
-      setSearchLimit(inputValue);
-    })
-  );
+  // GifLimit is hard coded for now.
+
+  // const handleSearchLimitInput = useMemo(
+  //   () =>
+  //     debounce((inputValue: string) => {
+  //       if (inputValue > gifLimit) {
+  //         inputValue = gifLimit;
+  //       } else if (inputValue < 1) {
+  //         inputValue = 1;
+  //       }
+  //       setSearching(true);
+  //       setSearchLimit(inputValue);
+  //     }),
+  //   []
+  // );
 
   async function getGiphyData(searchTerm: string) {
     const jsonQuery = { gifSearch: `${searchTerm}` };
@@ -96,7 +103,10 @@ const GiphySearch = (changeGif: () => void) => {
       });
 
     return () => fetchController.abort();
-  }, [searchTerm, searchLimit]);
+  }, [
+    searchTerm,
+    // searchLimit
+  ]);
 
   return (
     <>
@@ -104,16 +114,18 @@ const GiphySearch = (changeGif: () => void) => {
         <div className='container'>
           <Search
             gifLimit={9}
-            handleSearchTermInput={(e: Event) => {
+            handleSearchTermInput={(e: React.ChangeEvent<HTMLInputElement>) => {
               if (e.target) {
                 handleSearchTermInput(e.target.value);
               }
             }}
-            handleSearchLimitInput={(e: Event) => {
-              if (e.target) {
-                handleSearchLimitInput(e.target.value);
-              }
-            }}
+            // handleSearchLimitInput={(
+            //   e: React.ChangeEvent<HTMLInputElement>
+            // ) => {
+            //   if (e.target) {
+            //     handleSearchLimitInput(e.target.value);
+            //   }
+            // }}
           />
           {searching && <Loader />}
           {!searching && searched && (

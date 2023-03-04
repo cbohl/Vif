@@ -1,11 +1,13 @@
 import React from "react";
 
 const Search = ({
-  gifLimit,
+  // gifLimit,
   handleSearchTermInput,
-}: {
+}: // handleSearchLimitInput,
+{
   gifLimit: number;
-  handleSearchTermInput: (e: Event) => void;
+  handleSearchTermInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  // handleSearchLimitInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) => {
   return (
     <div className='gif-search'>

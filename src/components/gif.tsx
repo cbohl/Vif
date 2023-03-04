@@ -1,25 +1,31 @@
-import React from "react";
+import React, { PropsWithChildren } from "react";
 
-interface Fixed_width_downsampled {
+interface SpecificImageProps {
   url: string;
 }
 
-interface Downsized_large {
-  url: string;
-}
-
-interface Image {
-  fixed_width_downsampled: Fixed_width_downsampled;
-  downsized_large: Downsized_large;
+interface ImagesProps {
+  fixed_width_downsampled: SpecificImageProps;
+  downsized_large: SpecificImageProps;
 }
 
 interface GifObject {
   id: number;
-  images: Image[];
+  images: ImagesProps;
   title: string;
 }
 
-const Gif = ({ gif, changeGif }: { gif: GifObject; changeGif: () => void }) => {
+interface ChangeGifProps extends PropsWithChildren {
+  changeGif: (url: string) => void;
+}
+
+const Gif = ({
+  gif,
+  changeGif,
+}: {
+  gif: GifObject;
+  changeGif: ChangeGifProps;
+}) => {
   return (
     <div className='gif'>
       <div onClick={() => changeGif.changeGif(gif.images.downsized_large.url)}>

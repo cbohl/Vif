@@ -1,6 +1,5 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import styles from "../app/page.module.css";
 import NavBar from "@/components/NavBar";
 
 interface KeyboardEvent {
@@ -22,10 +21,10 @@ export default function Home() {
   };
 
   return (
-    <div className={styles.container}>
+    <div>
       <NavBar></NavBar>
 
-      <main className={styles.main}>
+      <main>
         <h1 className='text-lime-500 bold'>
           Welcome to Vif: Video Hangout and GIFs!
         </h1>
