@@ -18,7 +18,7 @@ const NavBar = () => {
             Vif
           </a>
         </div>
-        <hr className='h-px my-8 bg-gray-200 border-0 dark:bg-gray-700'></hr>
+        <hr className='h-px bg-gray-200 border-0 dark:bg-gray-700'></hr>
       </nav>
     </>
   );
