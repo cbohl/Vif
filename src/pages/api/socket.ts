@@ -95,14 +95,14 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponseWithSocket) => {
       // myNamespace.on("connection", (socket: Socket) => {
       console.log(`User Connected :${socket.id}`);
 
-      socket.on("set-gif-to-server", (gifUrl, roomName: string) => {
+      socket.on("setGifToServer", (gifUrl, roomName: string) => {
         console.log("sending gif", gifUrl); // world
-        socket.broadcast.to(roomName).emit("new-gif-from-server", gifUrl);
+        socket.broadcast.to(roomName).emit("newGifFromServer", gifUrl);
       });
 
-      socket.on("new-peer-to-server", (roomName: string) => {
+      socket.on("newPeerToServer", (roomName: string) => {
         console.log("new peer to server!");
-        socket.broadcast.to(roomName).emit("new-peer-from-server");
+        socket.broadcast.to(roomName).emit("newPeerFromServer");
       });
 
       // Triggered when a peer hits the join room button.
@@ -132,10 +132,10 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponseWithSocket) => {
 
       // Triggered when server gets an icecandidate from a peer in the room.
       socket.on(
-        "ice-candidate",
+        "iceCandidate",
         (candidate: RTCIceCandidate, roomName: string) => {
           console.log(candidate);
-          socket.broadcast.to(roomName).emit("ice-candidate", candidate); // Sends Candidate to the other peer in the room.
+          socket.broadcast.to(roomName).emit("iceCandidate", candidate); // Sends Candidate to the other peer in the room.
         }
       );
 

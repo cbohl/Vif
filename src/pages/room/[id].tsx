@@ -21,6 +21,9 @@ interface NamespaceSpecificClientToServerEvents {
   ready: (arg: string) => void;
   offer: (arg: string) => void;
   answer: (arg: string) => void;
+  iceCandidate: (arg: string) => void;
+  newPeerToServer: (arg: string) => void;
+  setGifToServer: (arg: string) => void;
 }
 
 interface NamespaceSpecificServerToClientEvents {
@@ -32,8 +35,11 @@ interface NamespaceSpecificServerToClientEvents {
   full: (arg: string) => void;
   offer: (arg: string) => void;
   answer: (arg: string) => void;
+  iceCandidate: (arg: string) => void;
+  newGifFromServer: (arg: string) => void;
+  newPeerFromServer: (arg: string) => void;
 
-  // ice-candidate: (arg: string) => void;
+  // iceCandidate: (arg: string) => void;
 }
 
 const ICE_SERVERS = {
@@ -109,15 +115,15 @@ const Room = () => {
     // Event called when a remote user initiating the connection and
     socketRef.current.on("offer", handleReceivedOffer);
     socketRef.current.on("answer", handleAnswer);
-    socketRef.current.on("ice-candidate", handlerNewIceCandidateMsg);
+    socketRef.current.on("iceCandidate", handlerNewIceCandidateMsg);
 
     // Update other users GIF if pinged by server called
-    socketRef.current.on("new-gif-from-server", function (msg: string) {
+    socketRef.current.on("newGifFromServer", function (msg: string) {
       console.log("here is the new gif form server", msg);
       setOtherUsersGifLink(msg);
     });
 
-    socketRef.current.on("new-peer-from-server", function () {
+    socketRef.current.on("newPeerFromServer", function () {
       console.log("new peer, sending gif link!", selectedGifUrl);
       console.log("sending link, here is ref", selectedGifUrlRef.current);
       gifLinkToServer(selectedGifUrlRef.current);
@@ -159,7 +165,7 @@ const Room = () => {
       });
 
     if (socketRef.current) {
-      socketRef.current.emit("new-peer-to-server", roomName);
+      socketRef.current.emit("newPeerToServer", roomName);
     }
     gifLinkToServer(selectedGifUrl);
   };
@@ -306,7 +312,7 @@ const Room = () => {
   const handleICECandidateEvent = (event: RTCIceCandidate) => {
     if (event.candidate) {
       if (socketRef.current) {
-        socketRef.current.emit("ice-candidate", event.candidate, roomName);
+        socketRef.current.emit("iceCandidate", event.candidate, roomName);
       }
     }
   };
@@ -350,7 +356,7 @@ const Room = () => {
 
   const gifLinkToServer = (url: string) => {
     if (socketRef.current) {
-      socketRef.current.emit("set-gif-to-server", url, roomName);
+      socketRef.current.emit("setGifToServer", url, roomName);
     }
   };
 
