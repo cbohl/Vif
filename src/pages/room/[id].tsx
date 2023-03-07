@@ -1,8 +1,3 @@
-// This page, a copy of the room page, is currently necessary due to CSS rendering issues.
-// The CSS from Tailwind is not applying to the room folder. This problem needs fixing.
-
-// /* eslint-disable */
-
 import { NextRouter, useRouter } from "next/router";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
@@ -10,10 +5,6 @@ import useSocket from "hooks/useSocket";
 import GiphySearch from "@/components/giphySearch";
 import NavBar from "@/components/NavBar";
 
-// interface NamespaceSpecificClientToServerEvents {
-//   joined: (arg: string) => void;
-// }
-// types for the namespace named "/my-namespace"
 interface NamespaceSpecificClientToServerEvents {
   // foo: (arg: string) => void;
   join: (arg: string) => void;
@@ -27,19 +18,16 @@ interface NamespaceSpecificClientToServerEvents {
 }
 
 interface NamespaceSpecificServerToClientEvents {
-  // bar: (arg: string) => void;
   joined: (arg: string) => void;
   created: (arg: string) => void;
   ready: (arg: string) => void;
   leave: (arg: string) => void;
   full: (arg: string) => void;
-  offer: (arg: string) => void;
-  answer: (arg: string) => void;
-  iceCandidate: (arg: string) => void;
+  offer: (offer: RTCSessionDescriptionInit) => void;
+  answer: (offer: RTCSessionDescriptionInit) => void;
+  iceCandidate: (offer: RTCIceCandidateInit) => void;
   newGifFromServer: (arg: string) => void;
   newPeerFromServer: (arg: string) => void;
-
-  // iceCandidate: (arg: string) => void;
 }
 
 const ICE_SERVERS = {
@@ -82,8 +70,6 @@ const Room = () => {
   const { id: roomName } = router.query;
 
   useEffect(() => {
-    // socketRef.current = io();
-
     const socket: Socket<
       NamespaceSpecificServerToClientEvents,
       NamespaceSpecificClientToServerEvents
@@ -91,12 +77,10 @@ const Room = () => {
 
     socketRef.current = socket;
 
-    // socketRef.current.on("bar", (arg) => {
-    //   console.log(arg); // "123"
-    // });
-
     // First we join a room
-    socketRef.current.emit("join", roomName);
+    if (typeof roomName == "string") {
+      socketRef.current.emit("join", roomName);
+    }
 
     socketRef.current.on("joined", handleRoomJoined);
     // If the room didn't exist, the server would emit the room was 'created'
@@ -157,7 +141,9 @@ const Room = () => {
           };
         }
         if (socketRef.current) {
-          socketRef.current.emit("ready", roomName);
+          if (typeof roomName == "string") {
+            socketRef.current.emit("ready", roomName);
+          }
         }
       })
       .catch((err: string) => {
@@ -165,7 +151,9 @@ const Room = () => {
       });
 
     if (socketRef.current) {
-      socketRef.current.emit("newPeerToServer", roomName);
+      if (typeof roomName == "string") {
+        socketRef.current.emit("newPeerToServer", roomName);
+      }
     }
     gifLinkToServer(selectedGifUrl);
   };
@@ -333,9 +321,9 @@ const Room = () => {
     }
   };
 
-  const toggleMediaStream = (type: any, state: any) => {
+  const toggleMediaStream = (type: string, state: string) => {
     if (userStreamRef.current) {
-      userStreamRef.current.getTracks().forEach((track: any) => {
+      userStreamRef.current.getTracks().forEach((track: MediaStreamTrack) => {
         if (track.kind === type) {
           // eslint-disable-next-line no-param-reassign
           track.enabled = !state;
@@ -362,7 +350,9 @@ const Room = () => {
 
   const leaveRoom = () => {
     if (socketRef.current) {
-      socketRef.current.emit("leave", roomName); // Let's the server know that user has left the room.
+      if (typeof roomName == "string") {
+        socketRef.current.emit("leave", roomName); // Let's the server know that user has left the room.
+      }
     }
 
     if (userVideoRef.current) {
