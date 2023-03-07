@@ -5,6 +5,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import type { Server as IOServer } from "socket.io";
 import type { Socket as NetSocket } from "net";
 import { Server, Socket } from "socket.io";
+import { Namespace } from "socket.io";
 
 interface SocketServer extends HTTPServer {
   io?: IOServer | undefined;
@@ -68,7 +69,30 @@ const SocketHandler = (req: NextApiRequest, res: NextApiResponseWithSocket) => {
 
     res.socket.server.io = io;
 
+    // types for the namespace named "/my-namespace"
+    interface NamespaceSpecificClientToServerEvents {
+      foo: (arg: string) => void;
+    }
+
+    interface NamespaceSpecificServerToClientEvents {
+      bar: (arg: string) => void;
+    }
+
+    const myNamespace: Namespace<
+      NamespaceSpecificClientToServerEvents,
+      NamespaceSpecificServerToClientEvents
+    > = io.of("/my-namespace");
+
+    // myNamespace.on("connection", (socket) => {
+    //   socket.on("foo", () => {
+    //     // ...
+    //   });
+
+    //   socket.emit("bar", "123");
+    // });
+
     io.on("connection", (socket: Socket) => {
+      // myNamespace.on("connection", (socket: Socket) => {
       console.log(`User Connected :${socket.id}`);
 
       socket.on("set-gif-to-server", (gifUrl, roomName: string) => {

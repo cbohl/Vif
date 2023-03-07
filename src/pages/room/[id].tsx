@@ -10,8 +10,30 @@ import useSocket from "hooks/useSocket";
 import GiphySearch from "@/components/giphySearch";
 import NavBar from "@/components/NavBar";
 
+// interface NamespaceSpecificClientToServerEvents {
+//   joined: (arg: string) => void;
+// }
+// types for the namespace named "/my-namespace"
 interface NamespaceSpecificClientToServerEvents {
+  // foo: (arg: string) => void;
+  join: (arg: string) => void;
+  leave: (arg: string) => void;
+  ready: (arg: string) => void;
+  offer: (arg: string) => void;
+  answer: (arg: string) => void;
+}
+
+interface NamespaceSpecificServerToClientEvents {
+  // bar: (arg: string) => void;
   joined: (arg: string) => void;
+  created: (arg: string) => void;
+  ready: (arg: string) => void;
+  leave: (arg: string) => void;
+  full: (arg: string) => void;
+  offer: (arg: string) => void;
+  answer: (arg: string) => void;
+
+  // ice-candidate: (arg: string) => void;
 }
 
 const ICE_SERVERS = {
@@ -42,7 +64,11 @@ const Room = () => {
   const rtcConnectionRef: MutableRefObject<RTCPeerConnection | null> =
     useRef(null);
   const socketRef: MutableRefObject<
-    Socket<Socket<NamespaceSpecificClientToServerEvents>> | undefined
+    | Socket<
+        NamespaceSpecificServerToClientEvents,
+        NamespaceSpecificClientToServerEvents
+      >
+    | undefined
   > = useRef();
   const userStreamRef: MutableRefObject<MediaStream | undefined> = useRef();
   const hostRef: MutableRefObject<boolean> = useRef(false);
@@ -50,7 +76,18 @@ const Room = () => {
   const { id: roomName } = router.query;
 
   useEffect(() => {
-    socketRef.current = io();
+    // socketRef.current = io();
+
+    const socket: Socket<
+      NamespaceSpecificServerToClientEvents,
+      NamespaceSpecificClientToServerEvents
+    > = io();
+
+    socketRef.current = socket;
+
+    // socketRef.current.on("bar", (arg) => {
+    //   console.log(arg); // "123"
+    // });
 
     // First we join a room
     socketRef.current.emit("join", roomName);
@@ -75,7 +112,7 @@ const Room = () => {
     socketRef.current.on("ice-candidate", handlerNewIceCandidateMsg);
 
     // Update other users GIF if pinged by server called
-    socketRef.current.on("new-gif-from-server", function (msg: any) {
+    socketRef.current.on("new-gif-from-server", function (msg: string) {
       console.log("here is the new gif form server", msg);
       setOtherUsersGifLink(msg);
     });
