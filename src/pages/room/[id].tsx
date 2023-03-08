@@ -391,81 +391,83 @@ const Room = () => {
   };
 
   return (
-    <div>
+    <>
       <NavBar></NavBar>
 
-      <div className='hidden'>
-        <h1 className='invisible text-lime-500'>You </h1>
-        <video
-          className='invisible'
-          autoPlay
-          ref={userVideoRef}
-          poster='https://upload.wikimedia.org/wikipedia/commons/3/37/No_person.jpg'
-        />
-      </div>
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8'>
-        <div className=''>
-          <div>
-            <div className='w-96 inline-block'>
-              <video
-                autoPlay
-                ref={peerVideoRef}
-                poster='/anonymousperson.png'
-              />
+      <main>
+        <div className='hidden'>
+          <h1 className='invisible text-lime-500'>You </h1>
+          <video
+            className='invisible'
+            autoPlay
+            ref={userVideoRef}
+            poster='https://upload.wikimedia.org/wikipedia/commons/3/37/No_person.jpg'
+          />
+        </div>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8'>
+          <div className=''>
+            <div>
+              <div className='w-96 inline-block'>
+                <video
+                  autoPlay
+                  ref={peerVideoRef}
+                  poster='/anonymousperson.png'
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className='w-96 inline-block'>
+                <img src={otherUsersGifLink} className='w-full'></img>
+              </div>
             </div>
           </div>
 
           <div>
-            <div className='w-96 inline-block'>
-              <img src={otherUsersGifLink} className='w-full'></img>
+            <div>
+              <div className='w-44 inline-block'>
+                <video
+                  autoPlay
+                  ref={userVideoRef}
+                  poster='/anonymousperson.png'
+                />
+              </div>
+              <div className='w-44 inline-block'>
+                <img src={selectedGifUrl} className='w-full'></img>
+              </div>
+            </div>
+
+            <div className='grid grid-cols-3 gap-4 w-96'>
+              <button
+                onClick={toggleMic}
+                type='button'
+                className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-100'
+              >
+                {micActive ? "Mute Mic" : "UnMute Mic"}
+              </button>
+              <button
+                onClick={leaveRoom}
+                type='button'
+                className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded'
+              >
+                Leave
+              </button>
+              <button
+                onClick={toggleCamera}
+                type='button'
+                className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded'
+              >
+                {cameraActive ? "Stop Camera" : "Start Camera"}
+              </button>
+            </div>
+
+            <div>
+              <GiphySearch changeGif={changeGif}></GiphySearch>
             </div>
           </div>
         </div>
-
-        <div>
-          <div>
-            <div className='w-44 inline-block'>
-              <video
-                autoPlay
-                ref={userVideoRef}
-                poster='/anonymousperson.png'
-              />
-            </div>
-            <div className='w-44 inline-block'>
-              <img src={selectedGifUrl} className='w-full'></img>
-            </div>
-          </div>
-
-          <div className='grid grid-cols-3 gap-4 w-96'>
-            <button
-              onClick={toggleMic}
-              type='button'
-              className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-100'
-            >
-              {micActive ? "Mute Mic" : "UnMute Mic"}
-            </button>
-            <button
-              onClick={leaveRoom}
-              type='button'
-              className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded'
-            >
-              Leave
-            </button>
-            <button
-              onClick={toggleCamera}
-              type='button'
-              className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded'
-            >
-              {cameraActive ? "Stop Camera" : "Start Camera"}
-            </button>
-          </div>
-
-          <div>
-            <GiphySearch changeGif={changeGif}></GiphySearch>
-          </div>
-        </div>
-      </div>
-    </div>
+      </main>
+    </>
   );
 };
 
