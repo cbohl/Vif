@@ -21,7 +21,7 @@ export default function Home() {
   };
 
   return (
-    <div>
+    <>
       <NavBar></NavBar>
 
       <main>
@@ -49,6 +49,6 @@ export default function Home() {
           Join Room
         </button>
       </main>
-    </div>
+    </>
   );
 }
