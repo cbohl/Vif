@@ -48,6 +48,19 @@ export default function Home() {
         >
           Join Room
         </button>
+
+        <div className='grid'>
+          <video
+            id='background-video'
+            autoPlay
+            loop
+            muted
+            className='fixed mb-80 z-0 w-2/3 mt-10 object-cover'
+            poster='https://assets.codepen.io/6093409/river.jpg'
+          >
+            <source src='vifdemo.mov' type='video/mp4'></source>
+          </video>
+        </div>
       </main>
     </>
   );
