@@ -1,8 +1,3 @@
-// This page, a copy of the room page, is currently necessary due to CSS rendering issues.
-// The CSS from Tailwind is not applying to the room folder. This problem needs fixing.
-
-// /* eslint-disable */
-
 import { NextRouter, useRouter } from "next/router";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
@@ -11,7 +6,28 @@ import GiphySearch from "@/components/giphySearch";
 import NavBar from "@/components/NavBar";
 
 interface NamespaceSpecificClientToServerEvents {
+  // foo: (arg: string) => void;
+  join: (arg: string) => void;
+  leave: (arg: string) => void;
+  ready: (arg: string) => void;
+  offer: (arg: string) => void;
+  answer: (arg: string) => void;
+  iceCandidate: (arg: string) => void;
+  newPeerToServer: (arg: string) => void;
+  setGifToServer: (arg: string) => void;
+}
+
+interface NamespaceSpecificServerToClientEvents {
   joined: (arg: string) => void;
+  created: (arg: string) => void;
+  ready: (arg: string) => void;
+  leave: (arg: string) => void;
+  full: (arg: string) => void;
+  offer: (offer: RTCSessionDescriptionInit) => void;
+  answer: (offer: RTCSessionDescriptionInit) => void;
+  iceCandidate: (offer: RTCIceCandidateInit) => void;
+  newGifFromServer: (arg: string) => void;
+  newPeerFromServer: (arg: string) => void;
 }
 
 const ICE_SERVERS = {
@@ -42,7 +58,11 @@ const Room = () => {
   const rtcConnectionRef: MutableRefObject<RTCPeerConnection | null> =
     useRef(null);
   const socketRef: MutableRefObject<
-    Socket<Socket<NamespaceSpecificClientToServerEvents>> | undefined
+    | Socket<
+        NamespaceSpecificServerToClientEvents,
+        NamespaceSpecificClientToServerEvents
+      >
+    | undefined
   > = useRef();
   const userStreamRef: MutableRefObject<MediaStream | undefined> = useRef();
   const hostRef: MutableRefObject<boolean> = useRef(false);
@@ -50,10 +70,17 @@ const Room = () => {
   const { id: roomName } = router.query;
 
   useEffect(() => {
-    socketRef.current = io();
+    const socket: Socket<
+      NamespaceSpecificServerToClientEvents,
+      NamespaceSpecificClientToServerEvents
+    > = io();
+
+    socketRef.current = socket;
 
     // First we join a room
-    socketRef.current.emit("join", roomName);
+    if (typeof roomName == "string") {
+      socketRef.current.emit("join", roomName);
+    }
 
     socketRef.current.on("joined", handleRoomJoined);
     // If the room didn't exist, the server would emit the room was 'created'
@@ -72,15 +99,15 @@ const Room = () => {
     // Event called when a remote user initiating the connection and
     socketRef.current.on("offer", handleReceivedOffer);
     socketRef.current.on("answer", handleAnswer);
-    socketRef.current.on("ice-candidate", handlerNewIceCandidateMsg);
+    socketRef.current.on("iceCandidate", handlerNewIceCandidateMsg);
 
     // Update other users GIF if pinged by server called
-    socketRef.current.on("new-gif-from-server", function (msg: any) {
+    socketRef.current.on("newGifFromServer", function (msg: string) {
       console.log("here is the new gif form server", msg);
       setOtherUsersGifLink(msg);
     });
 
-    socketRef.current.on("new-peer-from-server", function () {
+    socketRef.current.on("newPeerFromServer", function () {
       console.log("new peer, sending gif link!", selectedGifUrl);
       console.log("sending link, here is ref", selectedGifUrlRef.current);
       gifLinkToServer(selectedGifUrlRef.current);
@@ -114,7 +141,9 @@ const Room = () => {
           };
         }
         if (socketRef.current) {
-          socketRef.current.emit("ready", roomName);
+          if (typeof roomName == "string") {
+            socketRef.current.emit("ready", roomName);
+          }
         }
       })
       .catch((err: string) => {
@@ -122,7 +151,9 @@ const Room = () => {
       });
 
     if (socketRef.current) {
-      socketRef.current.emit("new-peer-to-server", roomName);
+      if (typeof roomName == "string") {
+        socketRef.current.emit("newPeerToServer", roomName);
+      }
     }
     gifLinkToServer(selectedGifUrl);
   };
@@ -269,7 +300,7 @@ const Room = () => {
   const handleICECandidateEvent = (event: RTCIceCandidate) => {
     if (event.candidate) {
       if (socketRef.current) {
-        socketRef.current.emit("ice-candidate", event.candidate, roomName);
+        socketRef.current.emit("iceCandidate", event.candidate, roomName);
       }
     }
   };
@@ -290,9 +321,9 @@ const Room = () => {
     }
   };
 
-  const toggleMediaStream = (type: any, state: any) => {
+  const toggleMediaStream = (type: string, state: string) => {
     if (userStreamRef.current) {
-      userStreamRef.current.getTracks().forEach((track: any) => {
+      userStreamRef.current.getTracks().forEach((track: MediaStreamTrack) => {
         if (track.kind === type) {
           // eslint-disable-next-line no-param-reassign
           track.enabled = !state;
@@ -313,13 +344,15 @@ const Room = () => {
 
   const gifLinkToServer = (url: string) => {
     if (socketRef.current) {
-      socketRef.current.emit("set-gif-to-server", url, roomName);
+      socketRef.current.emit("setGifToServer", url, roomName);
     }
   };
 
   const leaveRoom = () => {
     if (socketRef.current) {
-      socketRef.current.emit("leave", roomName); // Let's the server know that user has left the room.
+      if (typeof roomName == "string") {
+        socketRef.current.emit("leave", roomName); // Let's the server know that user has left the room.
+      }
     }
 
     if (userVideoRef.current) {
@@ -358,81 +391,83 @@ const Room = () => {
   };
 
   return (
-    <div>
+    <>
       <NavBar></NavBar>
 
-      <div className='hidden'>
-        <h1 className='invisible text-lime-500'>You </h1>
-        <video
-          className='invisible'
-          autoPlay
-          ref={userVideoRef}
-          poster='https://upload.wikimedia.org/wikipedia/commons/3/37/No_person.jpg'
-        />
-      </div>
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8'>
-        <div className=''>
-          <div>
-            <div className='w-96 inline-block'>
-              <video
-                autoPlay
-                ref={peerVideoRef}
-                poster='/anonymousperson.png'
-              />
+      <main>
+        <div className='hidden'>
+          <h1 className='invisible text-lime-500'>You </h1>
+          <video
+            className='invisible'
+            autoPlay
+            ref={userVideoRef}
+            poster='https://upload.wikimedia.org/wikipedia/commons/3/37/No_person.jpg'
+          />
+        </div>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-8'>
+          <div className=''>
+            <div>
+              <div className='w-96 inline-block'>
+                <video
+                  autoPlay
+                  ref={peerVideoRef}
+                  poster='/anonymousperson.png'
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className='w-96 inline-block'>
+                <img src={otherUsersGifLink} className='w-full'></img>
+              </div>
             </div>
           </div>
 
           <div>
-            <div className='w-96 inline-block'>
-              <img src={otherUsersGifLink} className='w-full'></img>
+            <div>
+              <div className='w-44 inline-block'>
+                <video
+                  autoPlay
+                  ref={userVideoRef}
+                  poster='/anonymousperson.png'
+                />
+              </div>
+              <div className='w-44 inline-block'>
+                <img src={selectedGifUrl} className='w-full'></img>
+              </div>
+            </div>
+
+            <div className='grid grid-cols-3 gap-4 w-96'>
+              <button
+                onClick={toggleMic}
+                type='button'
+                className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-100'
+              >
+                {micActive ? "Mute Mic" : "UnMute Mic"}
+              </button>
+              <button
+                onClick={leaveRoom}
+                type='button'
+                className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded'
+              >
+                Leave
+              </button>
+              <button
+                onClick={toggleCamera}
+                type='button'
+                className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded'
+              >
+                {cameraActive ? "Stop Camera" : "Start Camera"}
+              </button>
+            </div>
+
+            <div>
+              <GiphySearch changeGif={changeGif}></GiphySearch>
             </div>
           </div>
         </div>
-
-        <div>
-          <div>
-            <div className='w-44 inline-block'>
-              <video
-                autoPlay
-                ref={userVideoRef}
-                poster='/anonymousperson.png'
-              />
-            </div>
-            <div className='w-44 inline-block'>
-              <img src={selectedGifUrl} className='w-full'></img>
-            </div>
-          </div>
-
-          <div className='grid grid-cols-3 gap-4 w-96'>
-            <button
-              onClick={toggleMic}
-              type='button'
-              className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-100'
-            >
-              {micActive ? "Mute Mic" : "UnMute Mic"}
-            </button>
-            <button
-              onClick={leaveRoom}
-              type='button'
-              className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded'
-            >
-              Leave
-            </button>
-            <button
-              onClick={toggleCamera}
-              type='button'
-              className='bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded'
-            >
-              {cameraActive ? "Stop Camera" : "Start Camera"}
-            </button>
-          </div>
-
-          <div>
-            <GiphySearch changeGif={changeGif}></GiphySearch>
-          </div>
-        </div>
-      </div>
-    </div>
+      </main>
+    </>
   );
 };
 
