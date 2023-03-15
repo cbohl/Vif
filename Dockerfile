@@ -39,3 +39,5 @@ CMD ["yarn", "start"]
 
 # If using npm comment out above and use below instead
 # CMD ["npm", "run", "start"]
+
+EXPOSE 3000
